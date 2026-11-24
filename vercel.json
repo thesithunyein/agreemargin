@@ -7,6 +7,7 @@
     { "source": "/:page(new|workspace|review|manage|privacy|docs|faq|FAQ)", "destination": "/api/handler?__route=:page" },
     { "source": "/:asset(app.css|app.js|mark.svg)", "destination": "/api/handler?__route=:asset" },
     { "source": "/api/requests", "destination": "/api/handler?__route=api/requests" },
-    { "source": "/api/requests/:path+", "destination": "/api/handler?__route=api/requests/:path+" }
+    { "source": "/api/requests/:id/:role", "destination": "/api/handler?__route=api/requests/:id/:role" },
+    { "source": "/api/requests/:id/:role/payment", "destination": "/api/handler?__route=api/requests/:id/:role/payment" }
   ]
 }
