@@ -1,0 +1,31 @@
+# AgreeMargin
+
+AgreeMargin helps freelancers and small web studios get a clear client decision on extra work. A sender describes the change, its fee and added time, and an optional swap. The client opens a review link and chooses to keep the original scope, swap work, or add the change. Both sides can print the decision record.
+
+Each request has a private manage link and a separate review link. Save the manage link to open the request on another device. My requests lists links saved in the current browser. Review links accept responses for 30 days. The sender can withdraw or delete a request. The recorded name is supplied by the respondent.
+
+The ledger shows pending fees and approved margin separately by currency. Approved margin is the fee for approved added work less its private delivery cost. Approvals without a delivery cost are counted separately. Response time averages the time from creation to a recorded decision.
+
+## Run locally
+
+Open requests can be revised through the manage link. Client approval checks the exact revision displayed on the screen. Once a decision is recorded, the terms are locked.
+
+Optional Sui Testnet checkout uses the published Payment Kit registry through Slush. A client approves the revision first, then pays test USDC. Either party can paste a transaction digest. The server checks the checkpoint, successful receipt, asset, amount, registry, nonce, recipient and transaction signer. The downloadable JSON contains the private canonical terms and salt used to recreate the SHA-256 commitment. The receipt nonce holds the first 36 hexadecimal characters of that commitment.
+
+Use testnet wallets and test assets for this flow. Approval and settlement are separate actions. A recorded approval remains awaiting payment until its transfer is verified.
+
+Requires Node.js 23.11 or newer. From this directory, run:
+
+```sh
+npm run build
+npm test
+npm start
+```
+
+Open `http://127.0.0.1:4547`. The local server stores records in `.local/agreemargin.sqlite`. Set `AGREEMARGIN_PORT` to use a different port.
+
+## Hosting
+
+Vercel uses the Node.js function in `api/handler.js` and a dedicated PostgreSQL database. Connect a database to the Vercel project and set `DATABASE_URL` in the production environment. The function initializes its two tables on the first API request. Keep database credentials in Vercel environment variables.
+
+The local server uses SQLite. The Vercel deployment starts with a separate database. Manage and review links are tied to the site that issued them, and previously saved requests stay on that site.
