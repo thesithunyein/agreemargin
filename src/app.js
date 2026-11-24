@@ -117,7 +117,7 @@ function remember(record, ref) {
 
 function status(record) {
   if (record.payment?.state === 'verified') return ['Testnet verified', 'approved'];
-  if (record.payment?.state === 'awaiting') return ['Awaiting test payment', 'pending'];
+  if (record.payment?.state === 'awaiting') return ['Test payment pending', 'pending'];
   if (record.status === 'decided') {
     return { add: ['Approved', 'approved'], swap: ['Swap approved', 'approved'], keep: ['Original kept', 'neutral'] }[record.choice];
   }
@@ -317,9 +317,9 @@ function paymentSection(data) {
   if (!p) return '';
   const verified = p.state === 'verified';
   return `<section class="settlement"><div class="document-line"><span>${icon('fee')} Payment</span><span>Sui Testnet</span></div>
-    <h2>${verified ? 'Transfer verified' : 'Awaiting test payment'}</h2><p class="settlement-amount number">${(data.addCents / 100).toFixed(2)} test USDC</p>
+    <h2>${verified ? 'Transfer verified' : 'Test payment pending'}</h2><p class="settlement-amount number">${(data.addCents / 100).toFixed(2)} test USDC</p>
     ${verified ? `<p class="hint">Confirmed ${escape(date(p.chainTime, true))} · Checkpoint ${escape(p.checkpoint)}</p><a class="text-action" href="https://suiscan.xyz/testnet/tx/${encodeURIComponent(p.digest)}" target="_blank" rel="noreferrer">View transaction ↗</a>` :
-      `<ol class="payment-steps">
+      `<p class="hint">The terms are approved. You can come back to this link to finish payment or verify a transfer.</p><ol class="payment-steps">
         <li><strong>Prepare your wallet.</strong> Open Slush, switch to Sui Testnet, and check that your wallet has test USDC for the fee and test SUI for network fees. <a href="/docs#test-payment" target="_blank" rel="noopener">Wallet setup guide ↗</a></li>
         ${data.payUrl ? `<li><strong>Review and send.</strong> Open checkout and confirm the test network, amount, and receiving address in your wallet.<br><a class="button primary" href="${escape(data.payUrl)}" target="_blank" rel="noreferrer">Open test checkout ↗</a></li>` : '<li><strong>Wait for the client to send.</strong> The checkout is on their review link.</li>'}
         <li><strong>Verify the transfer.</strong> In your wallet activity, open the payment and copy its transaction ID. If the client sent it, ask them to share the ID.</li>
@@ -354,18 +354,19 @@ function bindPayment(data, ref, role) {
   });
 }
 
-function review(data, ref, notice = '') {
+function review(data, ref, notice = '', draft = null) {
   setTitle(data.status === 'decided' ? 'Decision receipt' : 'Client approval');
   const choice = data.choice ?? 'add';
   const options = [['add', 'Add the change'], ...(data.swap ? [['swap', 'Swap work']] : []), ['keep', 'Keep original scope']];
   const form = `<form id="decision" class="decision-form"><fieldset><legend>Choose how to proceed</legend>${options.map(([key, label]) => `<label class="choice"><input type="radio" name="choice" value="${key}"${key === choice ? ' checked' : ''}><strong>${label}</strong><span class="number">${key === 'add' ? escape(money(data.addCents, data.currency, true)) : 'Same fee'}</span></label>`).join('')}</fieldset>
     <div class="field"><label for="respondent">Your name</label><input id="respondent" name="name" autocomplete="name" required maxlength="80"></div>
-    ${data.receiver ? `<div class="field" id="payer-field"><label for="payer">Your paying wallet · Sui Testnet</label><input id="payer" name="payer" required pattern="0x[0-9a-fA-F]{64}" autocomplete="off" spellcheck="false" placeholder="0x…"><span class="hint">Copy your public address from Slush. <a href="/docs#test-payment" target="_blank" rel="noopener">New to wallets? Set one up ↗</a><br> The studio receives test USDC at <span class="wallet-address">${escape(data.receiver)}</span>.</span></div>` : ''}<p class="hint">Your name appears on the receipt. Reply by ${escape(date(data.expiresAt))}.</p><p class="form-feedback" role="alert"></p><button type="submit" class="button primary sign-off">${icon('check')}${data.receiver ? 'Approve and continue to payment' : 'Approve change'}</button></form>`;
+    ${data.receiver ? `<div class="field" id="payer-field"><label for="payer">Your paying wallet · Sui Testnet</label><input id="payer" name="payer" required pattern="0x[0-9a-fA-F]{64}" autocomplete="off" spellcheck="false" placeholder="0x…"><span class="hint">Copy your public address from Slush. <a href="/docs#test-payment" target="_blank" rel="noopener">New to wallets? Set one up ↗</a><br> The studio receives test USDC at <span class="wallet-address">${escape(data.receiver)}</span>.</span></div>` : ''}<p class="hint">Your name appears as entered on the receipt. Reply by ${escape(date(data.expiresAt))}.</p><p class="form-feedback" role="alert"></p><button type="submit" class="button primary sign-off">${icon('check')}${data.receiver ? 'Approve terms' : 'Approve change'}</button></form>`;
   render(`<div class="shell receipt-shell"><article class="card receipt-card">${notice ? `<p class="revision-notice" role="alert">${escape(notice)}</p>` : ''}${requestHeader(data)}${impact(data, choice)}${scopeSection(data, choice)}${data.status === 'open' ? form : data.status === 'decided' ? decisionRecord(data) + paymentSection(data) : closedRecord(data)}</article></div>`);
   bindPayment(data, ref, 'review');
   document.querySelector('.print')?.addEventListener('click', () => print());
   const node = document.querySelector('#decision');
   if (!node) return;
+  if (draft) node.elements.name.value = draft.name;
   const button = node.querySelector('button');
   const card = document.querySelector('.receipt-card');
   node.addEventListener('change', (event) => {
@@ -377,7 +378,7 @@ function review(data, ref, notice = '') {
       node.elements.payer.disabled = next !== 'add';
       document.querySelector('#payer-field').hidden = next !== 'add';
     }
-    button.innerHTML = `${icon('check')}${next === 'add' && data.receiver ? 'Approve and continue to payment' : next === 'keep' ? 'Confirm choice' : decisions[next]}`;
+    button.innerHTML = `${icon('check')}${next === 'add' && data.receiver ? 'Approve terms' : next === 'keep' ? 'Confirm choice' : decisions[next]}`;
   });
   node.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -392,7 +393,7 @@ function review(data, ref, notice = '') {
       main.focus();
     } catch (error) {
       if (error.status === 409) {
-        await openRequest('review', error.message);
+        await openRequest('review', error.message, { ...data, name: values.name });
         main.focus();
         return;
       }
@@ -459,7 +460,7 @@ async function manage(data, ref) {
   const choice = data.choice ?? 'add';
   render(`<div class="shell receipt-shell"><article class="card receipt-card">${requestHeader(data)}${impact(data, choice)}${scopeSection(data, choice)}${data.status === 'decided' ? decisionRecord(data) : data.status === 'open' ? '' : closedRecord(data)}
     ${paymentSection(data)}<section class="manage-links no-print"><h2>${data.status === 'open' ? 'Send to your client' : 'Share the record'}</h2>
-    <p class="hint">${data.status === 'open' ? `Share the review link with a client who has site access. Replies close ${escape(date(data.expiresAt))}.` : 'Use the review link to share the client view.'}</p>
+    <p class="hint">${data.status === 'open' ? `Send this review link to your client. Replies close ${escape(date(data.expiresAt))}.` : 'Use the review link to share the client view.'}</p>
     <div class="actions"><button class="button primary" id="copy-client" type="button">${icon('copy')}Copy review link</button>${data.status === 'open' ? '<button class="button secondary" id="copy-message" type="button">Copy client message</button>' : ''}<a class="button secondary" href="${escape(url)}" target="_blank" rel="noreferrer">Open client view ↗</a></div></section>
     <section class="manage-links no-print"><h2>Studio access</h2><p class="hint">Save the private manage link to open this request on another device.</p><div class="actions">${data.status === 'open' ? `<a class="button secondary" href="${link('/new', ref)}">Revise terms</a>` : ''}<button class="button secondary" id="copy-owner" type="button">${icon('copy')}Copy manage link</button></div>
     ${data.deliveryCents != null ? `<p class="hint">Delivery cost <span class="number">${escape(money(data.deliveryCents, data.currency))}</span></p>` : ''}</section></article>
@@ -493,7 +494,7 @@ async function changeRequest(button, ref, remove) {
   }
 }
 
-async function openRequest(role, notice = '') {
+async function openRequest(role, notice = '', draft = null) {
   render('<div class="shell receipt-shell"><div class="card receipt-card" role="status"><span class="screen-reader">Loading request</span><div class="skeleton short"></div><div class="skeleton"></div><div class="skeleton"></div></div></div>', true);
   const ref = location.hash.slice(1);
   try {
@@ -501,12 +502,17 @@ async function openRequest(role, notice = '') {
     const data = await api('GET', role === 'edit' ? 'manage' : role, ref);
     if (role === 'edit' && data.status === 'open') newRequest(data, ref);
     else if (role === 'edit') location.replace(link('/manage', ref));
-    else if (role === 'review') review(data, ref, notice);
+    else if (role === 'review') {
+      if (draft && data.status === 'open' && data.revision !== draft.revision) {
+        notice = `The quote changed. Extra fee: ${money(draft.addCents, draft.currency)} → ${money(data.addCents, data.currency)}. Schedule: ${timing(draft.addDays)} → ${timing(data.addDays)}. Review the updated terms before confirming.`;
+      }
+      review(data, ref, notice, draft);
+    }
     else await manage(data, ref);
   } catch (error) {
     setTitle('Request unavailable');
     render(`<div class="shell receipt-shell"><div class="card receipt-card">${heading('Request unavailable', escape(error.message))}<div class="actions error-actions">${error.status === 404 ? '<a class="button secondary" href="/">Home</a>' : '<button id="retry" class="button primary" type="button">Try again</button>'}</div></div></div>`);
-    document.querySelector('#retry')?.addEventListener('click', () => openRequest(role));
+    document.querySelector('#retry')?.addEventListener('click', () => openRequest(role, notice, draft));
   }
 }
 
@@ -532,7 +538,7 @@ function metrics(records, loading = false) {
   const missing = approved.length - costed.length;
   const pending = records.filter((record) => record.status === 'open');
   const figures = [
-    ['fee', 'Approved margin', currencyTotals(costed, (record) => record.addCents - record.deliveryCents), missing ? `${missing} ${missing === 1 ? 'approval needs' : 'approvals need'} a delivery cost` : 'Approved fees less delivery cost'],
+    ['fee', 'Estimated margin', currencyTotals(costed, (record) => record.addCents - record.deliveryCents), missing ? `${missing} ${missing === 1 ? 'approval needs' : 'approvals need'} a delivery cost` : 'Approved fees less estimated delivery cost'],
     ['calendar', 'Pending amount', currencyTotals(pending, (record) => record.addCents), `${pending.length} ${pending.length === 1 ? 'request' : 'requests'} awaiting reply`],
     ['clock', 'Response time', [responseTime(decided)], 'Average across decisions']
   ];
