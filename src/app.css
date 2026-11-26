@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  --canvas: #F8FAFC;
+  --canvas: #FFFFFF;
   --white: #FFFFFF;
   --line: #E2E8F0;
   --field-line: #CBD5E1;
@@ -352,9 +352,34 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
   .hero-art { width: min(100%, 440px); }
   .workflow-steps li { padding: 0; border: 0; }
 }
+.workflow-band .workflow { padding-block: clamp(38px, 6vw, 76px); }
+.workflow h2 { font-size: clamp(1.8rem, 3.5vw, 2.9rem); }
+.workflow-steps { gap: 16px; margin-top: 24px; }
+.workflow-steps li, .workflow-steps li:first-child { display: grid; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; }
+.workflow-art { display: grid; place-items: center; min-height: 145px; overflow: hidden; border-radius: 9px; background: #f2f5f3; perspective: 560px; }
+.workflow-object { display: grid; place-items: center; width: 76px; height: 76px; border: 1px solid #8caf9f; border-radius: 13px; background: white; color: var(--pine); transform: rotateX(23deg) rotateY(-24deg) rotateZ(-11deg); box-shadow: 3px 4px #b7cdc4, 6px 8px #b7cdc4, 14px 19px 20px #14382b24; }
+.workflow-object svg { width: 34px; height: 34px; }
+.workflow-steps li:nth-child(2) .workflow-object { transform: rotateX(21deg) rotateY(24deg) rotateZ(9deg); }
+.workflow-steps li:last-child .workflow-object { background: var(--pine); color: white; }
+.why-agreemargin { border-bottom: 1px solid var(--line); }
+.product-footer { border-top: 1px solid var(--line); }
+.product-footer .footer { border: 0; display: grid; grid-template-columns: 1fr auto auto; align-items: start; gap: 24px clamp(24px, 7vw, 100px); padding-block: 30px; }
+.footer p { color: var(--muted); font-size: .875rem; }
+.footer-links { display: grid; gap: 0; justify-items: start; }
+.footer-links h2 { font-size: .875rem; margin-bottom: 4px; }
+.footer-links a { margin-inline-start: -4px; }
+@media (prefers-reduced-motion: no-preference) {
+  .workflow-object { transition: translate 220ms var(--ease-out); }
+  .workflow-steps li:hover .workflow-object { translate: 0 -6px; }
+}
+@media (max-width: 690px) {
+  .workflow-art { min-height: 116px; }
+  .product-footer .footer { grid-template-columns: 1fr 1fr; }
+  .product-footer .footer > div { grid-column: 1 / -1; }
+}
 @media print {
   body { background: white; }
-  .header, .footer, .no-print, .print, .skip { display: none !important; }
+  .header, .product-footer, .no-print, .print, .skip { display: none !important; }
   .receipt-shell { width: 100%; max-width: none; padding: 0; }
   .receipt-card { border: none; box-shadow: none; padding: 0; }
   .impact, .record-summary { break-inside: avoid; }

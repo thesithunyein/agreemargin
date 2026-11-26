@@ -165,6 +165,10 @@ function updateScope(container, data, choice) {
   container.querySelector('[data-scope-items]').innerHTML = scope(data, choice);
 }
 
+function workflowArt(symbol) {
+  return `<span class="workflow-art" aria-hidden="true"><span class="workflow-object">${icon(symbol)}</span></span>`;
+}
+
 function home() {
   const steps = [
     ['file', 'Set the terms', 'List the extra work, fee, and time.'],
@@ -184,7 +188,15 @@ function home() {
       <path d="M144 107h82m-82 31h123m-123 29h94m-94 29h69" stroke="#b4cbc2" stroke-width="7" stroke-linecap="round"/>
       <g class="art-seal"><rect x="250" y="166" width="106" height="79" rx="15" fill="#124c41"/><path d="m282 205 14 14 29-30" stroke="#eaf7f0" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g>
     </svg></div></section>
-    <section class="workflow-band" id="workflow" aria-labelledby="workflow-title"><div class="workflow shell"><h2 id="workflow-title">How it works</h2><ol class="workflow-steps">${steps.map(([name, title, description]) => `<li><span class="outline-icon">${icon(name)}</span><div><h3>${title}</h3><p>${description}</p></div></li>`).join('')}</ol></div></section>
+    <section class="workflow-band" id="workflow" aria-labelledby="workflow-title"><div class="workflow shell"><h2 id="workflow-title">How it works</h2><ol class="workflow-steps">${steps.map(([name, title, description]) => `<li>${workflowArt(name)}<div><h3>${title}</h3><p>${description}</p></div></li>`).join('')}</ol></div></section>
+    <section class="shell landing-section why-agreemargin" aria-labelledby="why-title">
+      <div><h2 id="why-title">Why AgreeMargin?</h2><p>When the work changes, give the new terms a place of their own.</p></div>
+      <dl class="landing-options">
+        <div><dt>Make the tradeoff clear</dt><dd>Show what the new work costs and how it affects delivery.</dd></div>
+        <div><dt>Keep the quote current</dt><dd>Send one link. Clients review the latest revision before they decide.</dd></div>
+        <div><dt>Match payment to the work</dt><dd>Optional Sui Testnet checkout verifies the transfer against the accepted revision. <a href="/docs#test-payment">How verification works</a></dd></div>
+      </dl>
+    </section>
     <section class="shell landing-section" aria-labelledby="client-options-title">
       <div><h2 id="client-options-title">Give clients a clear choice</h2><p>One review link shows the fee, the timing, and the options you offer.</p></div>
       <dl class="landing-options">
