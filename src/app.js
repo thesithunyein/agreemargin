@@ -166,7 +166,7 @@ function updateScope(container, data, choice) {
 }
 
 function heroGlobe() {
-  const colors = ['#17483e', '#518578', '#8fada4', '#b9c9bd', '#b58b62', '#6e86ac'];
+  const colors = ['#171717', '#363636', '#595959', '#737373', '#8c8c8c', '#a3a3a3'];
   const count = 700;
   const dots = Array.from({ length: count }, (_, index) => {
     const y = 1 - 2 * (index + .5) / count;
@@ -175,13 +175,13 @@ function heroGlobe() {
     return { x: Math.cos(angle) * radius, y, z: Math.sin(angle) * radius, color: colors[index % colors.length] };
   }).filter(({ z }) => z > 0).sort((a, b) => a.z - b.z);
   return `<div class="hero-art" aria-hidden="true"><svg viewBox="0 0 440 360" fill="none">
-    <defs><radialGradient id="globe-light" cx="35%" cy="27%" r="70%"><stop stop-color="white"/><stop offset="1" stop-color="#edf4ef"/></radialGradient></defs>
+    <defs><radialGradient id="globe-light" cx="35%" cy="27%" r="70%"><stop stop-color="white"/><stop offset="1" stop-color="#f4f4f4"/></radialGradient></defs>
     <circle cx="220" cy="180" r="126" fill="url(#globe-light)"/>
-    <ellipse cx="220" cy="180" rx="180" ry="63" transform="rotate(-26 220 180)" stroke="#b7c9c0" stroke-dasharray="3 6"/>
+    <ellipse cx="220" cy="180" rx="180" ry="63" transform="rotate(-26 220 180)" stroke="#a3a3a3" stroke-dasharray="3 6"/>
     ${dots.map(({ x, y, z, color }) => `<circle cx="${(220 + x * 124).toFixed(2)}" cy="${(180 + y * 124).toFixed(2)}" r="${(1.2 + z * 2.05).toFixed(2)}" fill="${color}" opacity="${(.44 + z * .47).toFixed(2)}"/>`).join('')}
-    <path d="M382 100C408 150 343 225 250 270S74 317 57 274" stroke="#17483e" stroke-width="1.5" stroke-linecap="round"/>
-    <circle cx="382" cy="100" r="10" fill="#e6f2ea"/><circle cx="382" cy="100" r="4" fill="#17483e"/>
-    <circle cx="57" cy="274" r="4" fill="#17483e"/>
+    <path d="M382 100C408 150 343 225 250 270S74 317 57 274" stroke="#171717" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="382" cy="100" r="10" fill="#e6e6e6"/><circle cx="382" cy="100" r="4" fill="#171717"/>
+    <circle cx="57" cy="274" r="4" fill="#171717"/>
   </svg></div>`;
 }
 
