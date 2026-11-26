@@ -165,6 +165,26 @@ function updateScope(container, data, choice) {
   container.querySelector('[data-scope-items]').innerHTML = scope(data, choice);
 }
 
+function heroGlobe() {
+  const colors = ['#17483e', '#518578', '#8fada4', '#b9c9bd', '#b58b62', '#6e86ac'];
+  const count = 700;
+  const dots = Array.from({ length: count }, (_, index) => {
+    const y = 1 - 2 * (index + .5) / count;
+    const radius = Math.sqrt(1 - y * y);
+    const angle = index * Math.PI * (3 - Math.sqrt(5));
+    return { x: Math.cos(angle) * radius, y, z: Math.sin(angle) * radius, color: colors[index % colors.length] };
+  }).filter(({ z }) => z > 0).sort((a, b) => a.z - b.z);
+  return `<div class="hero-art" aria-hidden="true"><svg viewBox="0 0 440 360" fill="none">
+    <defs><radialGradient id="globe-light" cx="35%" cy="27%" r="70%"><stop stop-color="white"/><stop offset="1" stop-color="#edf4ef"/></radialGradient></defs>
+    <circle cx="220" cy="180" r="126" fill="url(#globe-light)"/>
+    <ellipse cx="220" cy="180" rx="180" ry="63" transform="rotate(-26 220 180)" stroke="#b7c9c0" stroke-dasharray="3 6"/>
+    ${dots.map(({ x, y, z, color }) => `<circle cx="${(220 + x * 124).toFixed(2)}" cy="${(180 + y * 124).toFixed(2)}" r="${(1.2 + z * 2.05).toFixed(2)}" fill="${color}" opacity="${(.44 + z * .47).toFixed(2)}"/>`).join('')}
+    <path d="M382 100C408 150 343 225 250 270S74 317 57 274" stroke="#17483e" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="382" cy="100" r="10" fill="#e6f2ea"/><circle cx="382" cy="100" r="4" fill="#17483e"/>
+    <circle cx="57" cy="274" r="4" fill="#17483e"/>
+  </svg></div>`;
+}
+
 function workflowArt(symbol) {
   return `<span class="workflow-art" aria-hidden="true"><span class="workflow-object">${icon(symbol)}</span></span>`;
 }
@@ -179,15 +199,7 @@ function home() {
     <div class="hero-copy"><h1>Get extra work approved.</h1>
     <p>Agree on the price and timeline before you start.</p>
     <div class="actions"><a class="button primary" href="/new">New request ${icon('plus')}</a><a class="text-action" href="/workspace">My requests →</a></div></div>
-    <div class="hero-art" aria-hidden="true"><svg viewBox="0 0 440 320" fill="none">
-      <rect x="18" y="18" width="404" height="284" rx="24" fill="#eaf7f0" stroke="#c4ded2"/>
-      <path d="M56 94h328M56 158h328M56 222h328M124 49v221M220 49v221M316 49v221" stroke="#c4ded2"/>
-      <rect x="133" y="60" width="180" height="204" rx="14" transform="rotate(9 133 60)" fill="#c4ded2" stroke="#a8cabc"/>
-      <path d="M128 51h132l39 39v169a12 12 0 0 1-12 12H128a12 12 0 0 1-12-12V63a12 12 0 0 1 12-12Z" fill="white" stroke="#8caf9f" stroke-width="2"/>
-      <path d="M260 51v39h39" stroke="#8caf9f" stroke-width="2" stroke-linejoin="round"/>
-      <path d="M144 107h82m-82 31h123m-123 29h94m-94 29h69" stroke="#b4cbc2" stroke-width="7" stroke-linecap="round"/>
-      <g class="art-seal"><rect x="250" y="166" width="106" height="79" rx="15" fill="#124c41"/><path d="m282 205 14 14 29-30" stroke="#eaf7f0" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g>
-    </svg></div></section>
+    ${heroGlobe()}</section>
     <section class="workflow-band" id="workflow" aria-labelledby="workflow-title"><div class="workflow shell"><h2 id="workflow-title">How it works</h2><ol class="workflow-steps">${steps.map(([name, title, description]) => `<li>${workflowArt(name)}<div><h3>${title}</h3><p>${description}</p></div></li>`).join('')}</ol></div></section>
     <section class="shell landing-section why-agreemargin" aria-labelledby="why-title">
       <div><h2 id="why-title">Why AgreeMargin?</h2><p>When the work changes, give the new terms a place of their own.</p></div>
