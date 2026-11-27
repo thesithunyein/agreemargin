@@ -397,10 +397,64 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
 .footer-links { display: grid; gap: 0; justify-items: start; }
 .footer-links h2 { font-size: .875rem; margin-bottom: 4px; }
 .footer-links a { margin-inline-start: -4px; }
+
+.orbit-hero {
+  position: relative;
+  display: grid;
+  align-items: start;
+  min-height: max(650px, calc(100svh - 68px));
+  overflow: hidden;
+  isolation: isolate;
+  text-align: center;
+  padding-block: clamp(48px, 8vh, 104px) 230px;
+}
+.orbit-copy { z-index: 1; }
+.orbit-guide {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding-inline: 16px;
+  border: 1px solid #fff3;
+  border-radius: 999px;
+  background: #ffffff10;
+  color: var(--ink);
+  font-size: .8125rem;
+  text-decoration: none;
+}
+.orbit-guide:hover { background: #ffffff20; }
+.orbit-copy h1 {
+  margin-block: 20px 14px;
+  font-size: clamp(2.65rem, 5.3vw, 4.75rem);
+  font-weight: 550;
+  line-height: 1.02;
+  letter-spacing: -.052em;
+}
+.orbit-copy h1 > span { display: block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
+.orbit-copy h1 > span > span { display: block; }
+.orbit-copy p { color: var(--muted); }
+.orbit-copy .actions { justify-content: center; margin-top: 22px; }
+.orbit-copy .button { border-radius: 10px; padding-inline: 16px; }
+.orbit-copy .button.primary { background: var(--ink); border-color: var(--ink); color: var(--canvas); }
+.orbit-copy .button.primary:hover { background: #dce6e0; }
+.orbit-copy .button.secondary { background: transparent; border-color: #aeb6b1; }
+.orbit-copy .button.secondary:hover { background: #ffffff14; }
+.orbit-hero .hero-art {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  bottom: clamp(-240px, -14vw, -55px);
+  width: clamp(410px, 92vw, 1100px);
+  translate: -50% 0;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, transparent 8%, #000 46%);
+}
 @media (prefers-reduced-motion: no-preference) {
+  .orbit-copy h1 > span > span { animation: orbit-reveal 600ms var(--ease-out) both; }
+  .orbit-copy h1 > span + span > span { animation-delay: 90ms; }
   .workflow-object { transition: translate 220ms var(--ease-out); }
   .workflow-steps li:hover .workflow-object { translate: 0 -6px; }
 }
+@keyframes orbit-reveal { from { transform: translateY(105%); } }
 @media (max-width: 690px) {
   .workflow-art { min-height: 116px; }
   .product-footer .footer { grid-template-columns: 1fr 1fr; }

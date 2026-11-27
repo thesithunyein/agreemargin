@@ -195,10 +195,13 @@ function home() {
     ['link', 'Send one link', 'Your client chooses what to do.'],
     ['check', 'Keep the receipt', 'See what they agreed to and when.']
   ];
-  render(`<div class="landing"><section class="shell hero">
-    <div class="hero-copy"><h1>Get extra work <em>approved.</em></h1>
-    <p>Agree on the price and timeline before you start.</p>
-    <div class="actions"><a class="button primary" href="/new">New request ${icon('plus')}</a><a class="text-action" href="/workspace">My requests</a></div></div>
+  render(`<div class="landing"><section class="orbit-hero" aria-labelledby="home-title">
+    <div class="orbit-copy shell">
+      <a class="orbit-guide" href="#workflow">See how it works</a>
+      <h1 id="home-title"><span><span>Extra work.</span></span> <span><span>Clear approval.</span></span></h1>
+      <p>Agree on the fee and timeline before you start.</p>
+      <div class="actions"><a class="button secondary" href="/workspace">My requests</a><a class="button primary" href="/new">New request</a></div>
+    </div>
     ${heroGlobe()}</section>
     <section class="workflow-band" id="workflow" aria-labelledby="workflow-title"><div class="workflow shell"><h2 id="workflow-title">How it works</h2><ol class="workflow-steps">${steps.map(([name, title, description]) => `<li>${workflowArt(name)}<div><h3>${title}</h3><p>${description}</p></div></li>`).join('')}</ol></div></section>
     <section class="shell landing-section why-agreemargin" aria-labelledby="why-title">
