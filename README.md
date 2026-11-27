@@ -1,4 +1,6 @@
-<img src="src/mark.svg" width="88" height="88" alt="AgreeMargin logo">
+<p align="center">
+  <img src="src/mark.svg" width="88" height="88" alt="AgreeMargin logo">
+</p>
 
 # AgreeMargin
 
