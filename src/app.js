@@ -166,7 +166,7 @@ function updateScope(container, data, choice) {
 }
 
 function heroGlobe() {
-  const colors = ['#429B7D', '#81CAA9', '#AAE5C6', '#3C795F', '#669BA0', '#D5B378'];
+  const colors = ['#328366', '#5BAA87', '#98C4AD', '#2D6F59', '#5A8F9D', '#B58B4C'];
   const count = 700;
   const dots = Array.from({ length: count }, (_, index) => {
     const y = 1 - 2 * (index + .5) / count;
@@ -175,13 +175,13 @@ function heroGlobe() {
     return { x: Math.cos(angle) * radius, y, z: Math.sin(angle) * radius, color: colors[index % colors.length] };
   }).filter(({ z }) => z > 0).sort((a, b) => a.z - b.z);
   return `<div class="hero-art" aria-hidden="true"><svg viewBox="0 0 440 360" fill="none">
-    <defs><radialGradient id="globe-light" cx="35%" cy="27%" r="70%"><stop stop-color="#19352B"/><stop offset="1" stop-color="#080D0B"/></radialGradient></defs>
+    <defs><radialGradient id="globe-light" cx="35%" cy="27%" r="70%"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#E2F2E8"/></radialGradient></defs>
     <circle cx="220" cy="180" r="126" fill="url(#globe-light)"/>
     <ellipse cx="220" cy="180" rx="180" ry="63" transform="rotate(-26 220 180)" stroke="#557064" stroke-dasharray="3 6"/>
-    ${dots.map(({ x, y, z, color }) => `<circle cx="${(220 + x * 124).toFixed(2)}" cy="${(180 + y * 124).toFixed(2)}" r="${(1.2 + z * 2.05).toFixed(2)}" fill="${color}" opacity="${(.44 + z * .47).toFixed(2)}"/>`).join('')}
-    <path d="M382 100C408 150 343 225 250 270S74 317 57 274" stroke="#A4D9BE" stroke-width="1.5" stroke-linecap="round"/>
-    <circle cx="382" cy="100" r="10" fill="#19352B"/><circle cx="382" cy="100" r="4" fill="#A4D9BE"/>
-    <circle cx="57" cy="274" r="4" fill="#A4D9BE"/>
+    <g class="globe-points">${dots.map(({ x, y, z, color }) => `<circle cx="${(220 + x * 124).toFixed(2)}" cy="${(180 + y * 124).toFixed(2)}" r="${(1.2 + z * 2.05).toFixed(2)}" fill="${color}" opacity="${(.44 + z * .47).toFixed(2)}"/>`).join('')}</g>
+    <path d="M382 100C408 150 343 225 250 270S74 317 57 274" stroke="#368369" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="382" cy="100" r="10" fill="#E2F2E8"/><circle cx="382" cy="100" r="4" fill="#368369"/>
+    <circle cx="57" cy="274" r="4" fill="#368369"/>
   </svg></div>`;
 }
 
@@ -202,7 +202,7 @@ function home() {
       <p>Agree on the fee and timeline before you start.</p>
       <div class="actions"><a class="button secondary" href="/workspace">My requests</a><a class="button primary" href="/new">New request</a></div>
     </div>
-    ${heroGlobe()}</section>
+    ${heroGlobe()}<button class="background-motion" type="button">Pause background</button></section>
     <section class="workflow-band" id="workflow" aria-labelledby="workflow-title"><div class="workflow shell"><h2 id="workflow-title">How it works</h2><ol class="workflow-steps">${steps.map(([name, title, description]) => `<li>${workflowArt(name)}<div><h3>${title}</h3><p>${description}</p></div></li>`).join('')}</ol></div></section>
     <section class="shell landing-section why-agreemargin" aria-labelledby="why-title">
       <div><h2 id="why-title">Why AgreeMargin?</h2><p>When the work changes, give the new terms a place of their own.</p></div>
@@ -233,6 +233,11 @@ function home() {
       <details><summary>Can I edit a sent request?</summary><p>Yes, while it’s open. Edit it from your manage link. Your client uses the same review link.</p></details>
       <details><summary>Do clients need a wallet?</summary><p>Only for optional test payments. Regular approvals work in the browser.</p></details>
     </div><a class="text-action" href="/faq">View all questions</a></section></div>`);
+  const motionButton = document.querySelector('.background-motion');
+  motionButton.addEventListener('click', () => {
+    const paused = motionButton.closest('.orbit-hero').classList.toggle('motion-paused');
+    motionButton.textContent = paused ? 'Play background' : 'Pause background';
+  });
 }
 
 function newRequest(existing = null, ref = null) {
