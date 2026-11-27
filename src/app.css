@@ -175,7 +175,7 @@ code { font-family: inherit; }
 .reference { font-size: .8125rem; }
 .print { justify-self: start; }
 .request-controls, .recovery { margin-top: 15px; }
-.request-controls summary, .recovery summary { width: fit-content; min-height: 44px; padding-block: 9px; color: var(--action); font-size: .9rem; font-weight: 670; cursor: pointer; }
+.request-controls summary { width: fit-content; min-height: 44px; padding-block: 9px; color: var(--action); font-size: .9rem; font-weight: 670; cursor: pointer; }
 .request-controls .form-feedback { margin-bottom: 8px; }
 .error-actions { margin-top: 2px; }
 .skeleton { width: 78%; height: 12px; border-radius: 5px; background: var(--line); }
@@ -214,8 +214,14 @@ table .ledger-fee, table .table-action { text-align: right; }
 .empty .outline-icon { margin-bottom: 7px; }
 .empty h3 { font-size: 1rem; }
 .empty p { color: var(--muted); font-size: .875rem; }
+.recovery { display: grid; gap: 14px; padding: var(--panel-padding); }
+.recovery h2 { font-size: 1.15rem; }
+.recovery h3 { font-size: 1rem; }
 .recovery form { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; }
-.recovery .field { flex: 1 1 250px; max-width: 460px; }
+.recovery .field { flex: 1 1 210px; }
+.recovery .form-feedback { flex-basis: 100%; }
+.recovery-backup { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 14px; }
+.recovery-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
 .privacy h2 { margin-bottom: 4px; font-size: 1rem; }
 .privacy p { color: var(--muted); }
 dialog { width: min(calc(100% - 36px), 430px); border: 1px solid var(--line); border-radius: 12px; padding: 20px; background: var(--surface); color: var(--ink); box-shadow: 0 24px 45px #00000029; }
@@ -397,28 +403,15 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
 .orbit-hero {
   position: relative;
   display: grid;
-  align-items: start;
-  min-height: max(650px, calc(100svh - 68px));
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(20px, 4vw, 60px);
   overflow: hidden;
   isolation: isolate;
-  text-align: center;
   background: var(--surface);
-  padding-block: clamp(48px, 8vh, 104px) 230px;
+  padding: clamp(48px, 7vw, 96px) max(24px, calc((100% - 1160px) / 2)) clamp(52px, 8vw, 106px);
 }
-.orbit-copy { z-index: 1; }
-.orbit-guide {
-  display: inline-flex;
-  align-items: center;
-  min-height: 42px;
-  padding-inline: 16px;
-  border: 1px solid var(--tint-line);
-  border-radius: 999px;
-  background: var(--tint);
-  color: var(--action);
-  font-size: .8125rem;
-  text-decoration: none;
-}
-.orbit-guide:hover { background: var(--surface); }
+.orbit-copy { width: 100%; z-index: 1; }
 .orbit-copy h1 {
   margin-block: 20px 14px;
   font-size: clamp(2.65rem, 5.3vw, 4.75rem);
@@ -428,19 +421,17 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
 }
 .orbit-copy h1 > span { display: block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
 .orbit-copy h1 > span > span { display: block; }
-.orbit-copy p { color: var(--muted); }
-.orbit-copy .actions { justify-content: center; margin-top: 22px; }
+.orbit-copy p { max-width: 36ch; color: var(--muted); font-size: clamp(1rem, 2vw, 1.2rem); }
+.orbit-copy .actions { margin-top: 24px; }
 .orbit-copy .button { border-radius: 10px; padding-inline: 16px; }
 .orbit-copy .button.secondary:hover { background: var(--tint); }
 .orbit-hero .hero-art {
-  position: absolute;
-  z-index: -1;
-  left: 50%;
-  bottom: clamp(-240px, -14vw, -55px);
-  width: clamp(410px, 92vw, 1100px);
-  translate: -50% 0;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--tint-line);
+  border-radius: var(--panel-radius);
+  background: var(--tint);
   pointer-events: none;
-  mask-image: linear-gradient(to bottom, transparent 8%, #000 46%);
   animation: none;
 }
 .background-motion {
@@ -481,6 +472,8 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
   .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 690px) {
+  .orbit-hero { grid-template-columns: minmax(0, 1fr); padding-top: 40px; padding-bottom: 72px; }
+  .orbit-hero .hero-art { width: min(100%, 440px); justify-self: center; }
   .workflow-art { min-height: 116px; }
   .product-footer .footer { grid-template-columns: 1fr 1fr; }
   .product-footer .footer > div { grid-column: 1 / -1; }

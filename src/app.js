@@ -197,10 +197,9 @@ function home() {
   ];
   render(`<div class="landing"><section class="orbit-hero" aria-labelledby="home-title">
     <div class="orbit-copy shell">
-      <a class="orbit-guide" href="#workflow">See how it works</a>
       <h1 id="home-title"><span><span>Extra work.</span></span> <span><span>Clear approval.</span></span></h1>
-      <p>Agree on the fee and timeline before you start.</p>
-      <div class="actions"><a class="button secondary" href="/workspace">My requests</a><a class="button primary" href="/new">New request</a></div>
+      <p>Send one link for your client to approve the extra work, fee, and timeline.</p>
+      <div class="actions"><a class="button primary" href="/new">New request</a><a class="button secondary" href="#workflow">How it works</a></div>
     </div>
     ${heroGlobe()}<button class="background-motion" type="button">Pause background</button></section>
     <section class="workflow-band" id="workflow" aria-labelledby="workflow-title"><div class="workflow shell"><h2 id="workflow-title">How it works</h2><ol class="workflow-steps">${steps.map(([name, title, description]) => `<li>${workflowArt(name)}<div><h3>${title}</h3><p>${description}</p></div></li>`).join('')}</ol></div></section>
@@ -593,11 +592,13 @@ function workspace() {
     <div class="workspace-requests">
     <section class="card ledger" aria-labelledby="ledger-title"><div class="ledger-title"><h2 id="ledger-title" tabindex="-1">Requests</h2><p class="hint" id="ledger-feedback" role="status"></p></div>
     ${items.length ? `<div class="table-scroll" tabindex="0" role="region" aria-label="Request ledger"><table><thead><tr><th scope="col">Request</th><th scope="col">Status</th><th scope="col" class="ledger-fee">Fee</th><th scope="col">Sent</th><th scope="col" class="table-action">Review link</th></tr></thead><tbody>${ledgerRows(items.map((item) => ({ item, loading: true })))}</tbody></table></div>` : '<div class="empty"><span class="outline-icon">' + icon('file') + '</span><h3>No requests yet</h3><p>Create a request to track its fee and decision here.</p></div>'}</section>
-    <details class="recovery"><summary>Open a saved manage link</summary><form id="recover"><div class="field"><label for="manage-link">Manage link</label><input id="manage-link" type="url" name="link" autocomplete="off" required></div><button class="button secondary" type="submit">Open link</button><p class="form-feedback" role="alert"></p></form></details>
-    <details class="recovery"><summary>Back up or restore your request list</summary>
-      <p class="hint">Use a backup to open your requests in another browser. Keep this file private. Anyone with it can manage those requests.</p>
-      <div class="actions"><button class="button secondary" id="export-requests" type="button"${items.length ? '' : ' disabled'}>Download backup</button></div>
-      <form id="import-requests"><div class="field"><label for="request-backup">AgreeMargin backup file</label><input id="request-backup" name="backup" type="file" accept=".json,application/json" required></div><button class="button secondary" type="submit">Restore requests</button><p class="form-feedback" role="alert"></p></form></details></div></div></div>`);
+    <section class="card recovery" aria-labelledby="recovery-title">
+      <h2 id="recovery-title">Request recovery</h2>
+      <form id="recover"><div class="field"><label for="manage-link">Saved manage link</label><input id="manage-link" type="url" name="link" autocomplete="off" required></div><button class="button secondary" type="submit">Open link</button><p class="form-feedback" role="alert"></p></form>
+      <div class="recovery-backup"><div class="recovery-heading"><h3>Request list backup</h3><button class="button secondary" id="export-requests" type="button"${items.length ? '' : ' disabled'}>Download backup</button></div>
+      <p class="hint">Move your list to another browser. Keep the backup private. It contains your manage links.</p>
+      <form id="import-requests"><div class="field"><label for="request-backup">AgreeMargin backup file</label><input id="request-backup" name="backup" type="file" accept=".json,application/json" required></div><button class="button secondary" type="submit">Restore requests</button><p class="form-feedback" role="alert"></p></form></div>
+    </section></div></div></div>`);
   document.querySelector('#recover').addEventListener('submit', (event) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -712,8 +713,8 @@ function guide(isFaq) {
     <nav class="guide-nav" aria-label="On this page"><a href="#send">Send a request</a><a href="#manage">Manage requests</a><a href="#review">Review a change</a><a href="#receipts">Receipts and ledger</a><a href="#test-payment">Make a test payment</a></nav>
     <section id="send"><h2>Send a request</h2><ol><li>Describe the original agreement and what changed.</li><li>Enter the extra fee and time. Compare the client preview.</li><li>Create the review link and send it to your client. Keep the manage link private.</li></ol><a class="button primary" href="/new">Create a request</a></section>
     <section id="manage"><h2>Manage requests</h2><h3>Revise an open request</h3><p>Open its manage link and select <strong>Revise terms</strong>. Save the new scope, fee, or timing. The same review link shows the new revision. If your client already has the old version open, they’ll be asked to review the update.</p>
-    <h3>Open a request on another device</h3><p>Choose <strong>Copy manage link</strong> in the studio view and save it privately. Open it directly on the other device or paste it into <strong>Open a saved manage link</strong> in My requests. Anyone with the manage link can manage that request.</p>
-    <h3>Move your request list</h3><p>In <strong>My requests</strong>, open <strong>Back up or restore your request list</strong> and download a backup. Open the same AgreeMargin site in the new browser and restore the file there. This adds saved links to the existing list. The file contains private manage links and cannot recover deleted requests.</p>
+    <h3>Open a request on another device</h3><p>Choose <strong>Copy manage link</strong> in the studio view and save it privately. Open it directly on the other device or paste it into <strong>Saved manage link</strong> under <strong>Request recovery</strong> in My requests. Anyone with the manage link can manage that request.</p>
+    <h3>Move your request list</h3><p>In <strong>My requests</strong>, select <strong>Download backup</strong> under <strong>Request recovery</strong>. Open the same AgreeMargin site in the new browser, choose the file, and select <strong>Restore requests</strong>. This adds saved links to the existing list. The file contains private manage links and cannot recover deleted requests.</p>
     <h3>Close or remove a request</h3><p>Use <strong>More actions</strong> to withdraw an open request or delete a record. A withdrawn request stops accepting responses. A deleted request can no longer be opened by either link.</p></section>
     <section id="review"><h2>Review a change</h2><ol><li>Open the link from your studio. Check the revision, fee, and timeline.</li><li>Choose added work, a scope swap if offered, or the original scope.</li><li>Enter your name and confirm. You can print the decision receipt.</li></ol><p>Your decision locks that revision. If the terms need to change after approval, ask the studio for a new request.</p></section>
     <section id="receipts"><h2>Receipts and ledger</h2><p>After the client decides, both sides can open their original links to see the choice, revision, and decision time. Use <strong>Print receipt</strong> to print or save a PDF through your browser.</p><p><strong>My requests</strong> shows the requests saved in this browser. Pending fees are grouped by currency. Estimated margin uses the approved fee and the private delivery cost when one was entered.</p></section>
