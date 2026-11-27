@@ -135,12 +135,22 @@ Keep credentials in the host’s environment settings. Local SQLite and producti
 
 ## Security and privacy
 
+The studio can download and restore its request list from **My requests**. The backup contains private manage links. Store it in a private location and transfer it securely. Restoring the file adds links to the current browser. It requires the original deployment and its stored records.
+
 - Client and studio links carry separate access tokens. The database stores their hashes. Keep manage links private, since possession grants studio access for that request.
 - The API checks link roles and revision state. The client response excludes the studio’s private delivery cost. The app uses same-origin checks for browser writes, creation rate limits when a client IP is available, and a restrictive Content Security Policy.
 - Client names are supplied by the respondent. Review links accept replies for 30 days. Deleting a request removes its hosted receipt, so print or export records you want to keep.
 - Checkout is **Testnet-only**. Slush signs wallet transactions. AgreeMargin does not ask for wallet keys or custody funds.
 
 See [Security policy](SECURITY.md) and [Privacy & access](https://agreemargin.vercel.app/privacy).
+
+## Launch checks
+
+- Run three to five real change requests with at least two consenting studios. Record whether each client understood the fee and timeline, approved without coaching, and reopened the receipt. Record repeat use separately.
+- On desktop and mobile, create a request, open the review link in a fresh browser, approve it, and reopen the receipt. Check keyboard navigation, stale and expired links, a double submit, and retry after a dropped connection.
+- Export the studio request list and import it into a clean browser profile on the same deployment. Confirm that the restored approval shows the original revision, decision timestamp, and amount. Test a duplicate import and an invalid file.
+- Configure production alerts for API errors and unavailable storage. Rehearse database recovery into an isolated database using the hosting provider’s restore procedure. Compare a known receipt against the source and record restore time and data loss before relying on the procedure.
+- Run Testnet checkout as a separate check with a funded test wallet. Reopen the receipt in a fresh browser and confirm that approval and Testnet verification are labeled separately.
 
 ## Contributing and conduct
 

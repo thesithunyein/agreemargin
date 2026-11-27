@@ -101,8 +101,10 @@ function saved() {
 function saveList(list) {
   try {
     localStorage.setItem(storageKey, JSON.stringify(list));
+    return true;
   } catch {
     // The manage link still works when local storage is unavailable.
+    return false;
   }
 }
 
@@ -116,8 +118,6 @@ function remember(record, ref) {
 }
 
 function status(record) {
-  if (record.payment?.state === 'verified') return ['Testnet verified', 'approved'];
-  if (record.payment?.state === 'awaiting') return ['Test payment pending', 'pending'];
   if (record.status === 'decided') {
     return { add: ['Approved', 'approved'], swap: ['Swap approved', 'approved'], keep: ['Original kept', 'neutral'] }[record.choice];
   }
@@ -341,7 +341,8 @@ function paymentSection(data) {
   if (!p) return '';
   const verified = p.state === 'verified';
   return `<section class="settlement"><div class="document-line"><span>${icon('fee')} Payment</span><span>Sui Testnet</span></div>
-    <h2>${verified ? 'Transfer verified' : 'Test payment pending'}</h2><p class="settlement-amount number">${(data.addCents / 100).toFixed(2)} test USDC</p>
+    <h2>${verified ? 'Test transfer verified' : 'Test payment pending'}</h2><p class="settlement-amount number">${(data.addCents / 100).toFixed(2)} test USDC</p>
+    <p class="hint">Test funds have no cash value.</p>
     ${verified ? `<p class="hint">Confirmed ${escape(date(p.chainTime, true))} · Checkpoint ${escape(p.checkpoint)}</p><a class="text-action" href="https://suiscan.xyz/testnet/tx/${encodeURIComponent(p.digest)}" target="_blank" rel="noreferrer">View transaction ↗</a>` :
       `<p class="hint">The terms are approved. You can come back to this link to finish payment or verify a transfer.</p><ol class="payment-steps">
         <li><strong>Prepare your wallet.</strong> Open Slush, switch to Sui Testnet, and check that your wallet has test USDC for the fee and test SUI for network fees. <a href="/docs#test-payment" target="_blank" rel="noopener">Wallet setup guide ↗</a></li>
@@ -571,7 +572,7 @@ function metrics(records, loading = false) {
 
 function ledgerRows(entries) {
   return entries.map(({ item, record, index, loading }) => `<tr><th scope="row"><a href="${link('/manage', item.ref)}">${escape(record?.title ?? item.title)}</a><span class="meta">${escape(record?.project ?? item.project)}</span></th>
-    <td>${loading ? '<span class="muted">Loading</span>' : badge(record ?? {})}</td><td class="ledger-fee number">${record ? escape(money(record.choice ? amountFor(record, record.choice) : record.addCents, record.currency)) : '—'}</td>
+    <td>${loading ? '<span class="muted">Loading</span>' : badge(record ?? {})}${record?.payment ? `<span class="meta">${record.payment.state === 'verified' ? 'Test transfer verified' : 'Test payment pending'}</span>` : ''}</td><td class="ledger-fee number">${record ? escape(money(record.choice ? amountFor(record, record.choice) : record.addCents, record.currency)) : '—'}</td>
     <td class="date number">${record ? `<time datetime="${new Date(record.createdAt).toISOString()}">${escape(date(record.createdAt))}</time>` : '—'}</td>
     <td class="table-action">${record ? `<button type="button" class="button secondary copy-small" data-copy-index="${index}" aria-label="Copy review link for ${escape(record.title)}">${icon('copy')}Copy link</button>` : '—'}</td></tr>`).join('');
 }
@@ -581,9 +582,13 @@ function workspace() {
   const items = saved();
   render(`<div class="shell page"><header class="page-head ledger-head">${heading('My requests', 'Track requests saved in this browser.')}<div class="actions">${items.length ? `<button class="button secondary" id="refresh" type="button">${icon('refresh')}Refresh</button>` : ''}<a class="button primary" href="/new">${icon('plus')}New request</a></div></header>
     <div class="metrics" id="metrics" aria-busy="${Boolean(items.length)}">${metrics([], Boolean(items.length))}</div>
-    <section class="card ledger" aria-labelledby="ledger-title"><div class="ledger-title"><h2 id="ledger-title">Requests</h2><p class="hint" id="ledger-feedback" role="status"></p></div>
+    <section class="card ledger" aria-labelledby="ledger-title"><div class="ledger-title"><h2 id="ledger-title" tabindex="-1">Requests</h2><p class="hint" id="ledger-feedback" role="status"></p></div>
     ${items.length ? `<div class="table-scroll" tabindex="0" role="region" aria-label="Request ledger"><table><thead><tr><th scope="col">Request</th><th scope="col">Status</th><th scope="col" class="ledger-fee">Fee</th><th scope="col">Sent</th><th scope="col" class="table-action">Review link</th></tr></thead><tbody>${ledgerRows(items.map((item) => ({ item, loading: true })))}</tbody></table></div>` : '<div class="empty"><span class="outline-icon">' + icon('file') + '</span><h3>No requests yet</h3><p>Create a request to track its fee and decision here.</p></div>'}</section>
-    <details class="recovery"><summary>Open a saved manage link</summary><form id="recover"><div class="field"><label for="manage-link">Manage link</label><input id="manage-link" type="url" name="link" autocomplete="off" required></div><button class="button secondary" type="submit">Open link</button><p class="form-feedback" role="alert"></p></form></details></div>`);
+    <details class="recovery"><summary>Open a saved manage link</summary><form id="recover"><div class="field"><label for="manage-link">Manage link</label><input id="manage-link" type="url" name="link" autocomplete="off" required></div><button class="button secondary" type="submit">Open link</button><p class="form-feedback" role="alert"></p></form></details>
+    <details class="recovery"><summary>Back up or restore your request list</summary>
+      <p class="hint">Use a backup to open your requests in another browser. Keep this file private. Anyone with it can manage those requests.</p>
+      <div class="actions"><button class="button secondary" id="export-requests" type="button"${items.length ? '' : ' disabled'}>Download backup</button></div>
+      <form id="import-requests"><div class="field"><label for="request-backup">AgreeMargin backup file</label><input id="request-backup" name="backup" type="file" accept=".json,application/json" required></div><button class="button secondary" type="submit">Restore requests</button><p class="form-feedback" role="alert"></p></form></details></div>`);
   document.querySelector('#recover').addEventListener('submit', (event) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -593,6 +598,51 @@ function workspace() {
       location.assign(url.href);
     } catch {
       feedback(form, 'Paste a full AgreeMargin manage link.');
+    }
+  });
+  document.querySelector('#export-requests').addEventListener('click', () => {
+    const backup = JSON.stringify({ version: 1, origin: location.origin, requests: saved() });
+    const url = URL.createObjectURL(new Blob([backup], { type: 'application/json' }));
+    const download = document.createElement('a');
+    download.href = url;
+    download.download = 'agreemargin-request-backup.json';
+    download.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  document.querySelector('#import-requests').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const restore = pending(form.querySelector('button'), 'Restoring…');
+    try {
+      const file = form.elements.backup.files[0];
+      if (!file?.size || file.size > 5 * 1024 * 1024) {
+        feedback(form, 'Choose an AgreeMargin backup file under 5 MB.');
+        return;
+      }
+      const backup = JSON.parse(await file.text());
+      if (backup.version !== 1 || backup.origin !== location.origin ||
+          !Array.isArray(backup.requests) || !backup.requests.length ||
+          !backup.requests.every(item => typeof item?.ref === 'string' && referencePattern.test(item.ref) &&
+            typeof item.title === 'string' && typeof item.project === 'string')) {
+        feedback(form, 'Choose a valid backup from this AgreeMargin site.');
+        return;
+      }
+      const local = new Map(saved().map(item => [item.ref, item]));
+      for (const { ref, title, project } of backup.requests) {
+        if (!local.has(ref)) local.set(ref, { ref, title, project });
+      }
+      if (!saveList([...local.values()])) {
+        feedback(form, 'This browser could not save your requests. Check your storage settings and retry.');
+        return;
+      }
+      workspace();
+      const status = document.querySelector('#ledger-feedback');
+      status.textContent = 'Request list restored. Checking availability…';
+      document.querySelector('#ledger-title').focus();
+    } catch {
+      feedback(form, 'This file could not be read. Choose an AgreeMargin backup and try again.');
+    } finally {
+      restore();
     }
   });
   if (!items.length) return;
@@ -643,7 +693,7 @@ function guide(isFaq) {
     ['Which link should I share?', 'Send the review link to the client. Save the manage link privately so you can open the request on another device.'],
     ['Can my client keep the original scope?', 'Yes. They can keep the original scope, approve the addition, or choose a swap if you offered one.'],
     ['How long can clients reply?', 'Clients have 30 days from creation to reply. If a request expires, create a new one and share its review link.'],
-    ['Where are my requests on another device?', 'My requests is saved in the browser you used. Open each saved manage link on the new device to add it to that browser.'],
+    ['Where are my requests on another device?', 'Download a backup in My requests, then restore it on the other device. You can also open a saved manage link. Keep the file and links private.'],
     ['What does estimated margin mean?', 'It’s the approved extra fee less the private delivery cost you entered. It estimates margin on approved work. The payment state shows whether a test transfer was verified.'],
     ['How do I save a decision receipt?', 'Open the decided request and select Print receipt. Choose Save as PDF in your browser if you want a file.'],
     ['What happens if I withdraw or delete a request?', 'Withdrawing stops new decisions on an open request. Deleting removes the hosted record and disables both links. Save any receipt you need first.'],
@@ -654,6 +704,7 @@ function guide(isFaq) {
     <section id="send"><h2>Send a request</h2><ol><li>Describe the original agreement and what changed.</li><li>Enter the extra fee and time. Compare the client preview.</li><li>Create the review link and send it to your client. Keep the manage link private.</li></ol><a class="button primary" href="/new">Create a request</a></section>
     <section id="manage"><h2>Manage requests</h2><h3>Revise an open request</h3><p>Open its manage link and select <strong>Revise terms</strong>. Save the new scope, fee, or timing. The same review link shows the new revision. If your client already has the old version open, they’ll be asked to review the update.</p>
     <h3>Open a request on another device</h3><p>Choose <strong>Copy manage link</strong> in the studio view and save it privately. Open it directly on the other device or paste it into <strong>Open a saved manage link</strong> in My requests. Anyone with the manage link can manage that request.</p>
+    <h3>Move your request list</h3><p>In <strong>My requests</strong>, open <strong>Back up or restore your request list</strong> and download a backup. Open the same AgreeMargin site in the new browser and restore the file there. This adds saved links to the existing list. The file contains private manage links and cannot recover deleted requests.</p>
     <h3>Close or remove a request</h3><p>Use <strong>More actions</strong> to withdraw an open request or delete a record. A withdrawn request stops accepting responses. A deleted request can no longer be opened by either link.</p></section>
     <section id="review"><h2>Review a change</h2><ol><li>Open the link from your studio. Check the revision, fee, and timeline.</li><li>Choose added work, a scope swap if offered, or the original scope.</li><li>Enter your name and confirm. You can print the decision receipt.</li></ol><p>Your decision locks that revision. If the terms need to change after approval, ask the studio for a new request.</p></section>
     <section id="receipts"><h2>Receipts and ledger</h2><p>After the client decides, both sides can open their original links to see the choice, revision, and decision time. Use <strong>Print receipt</strong> to print or save a PDF through your browser.</p><p><strong>My requests</strong> shows the requests saved in this browser. Pending fees are grouped by currency. Estimated margin uses the approved fee and the private delivery cost when one was entered.</p></section>
