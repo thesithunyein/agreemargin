@@ -14,13 +14,19 @@
   --field-line: #BEBEBE;
   --ink: #090909;
   --muted: #525252;
-  --action: #171717;
-  --action-hover: #363636;
-  --focus: #242424;
-  --tint: #F5F5F5;
-  --tint-line: #DADADA;
-  --error-ink: #242424;
-  --error-bg: #F4F4F4;
+  --action: #145849;
+  --action-hover: #0F4439;
+  --focus: #235DA6;
+  --tint: #EEF8F3;
+  --tint-line: #C6E2D5;
+  --blue: #234D82;
+  --blue-bg: #EFF5FF;
+  --blue-line: #CADAF1;
+  --amber: #744309;
+  --amber-bg: #FFF5DF;
+  --amber-line: #E8D0A0;
+  --error-ink: #912E34;
+  --error-bg: #FFF1F2;
   --sans: "DM Sans", Arial, sans-serif;
   --ease-out: cubic-bezier(.16, 1, .3, 1);
 }
@@ -71,7 +77,7 @@ code { font-family: inherit; }
 .meta { overflow-wrap: anywhere; }
 .status { display: inline-flex; flex: none; align-items: center; gap: 6px; width: fit-content; border: 1px solid var(--line); border-radius: 5px; padding: 3px 8px; background: var(--canvas); color: var(--muted); font-size: .8125rem; font-weight: 680; line-height: 1.4; white-space: nowrap; }
 .status.approved { background: var(--tint); color: var(--action); border-color: var(--tint-line); }
-.status.pending { color: var(--ink); background: var(--white); border-color: var(--field-line); }
+.status.pending { color: var(--amber); background: var(--amber-bg); border-color: var(--amber-line); }
 .status.pending::before, .status.approved::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .96fr); gap: clamp(24px, 6vw, 83px); align-items: center; padding-block: 66px 62px; }
@@ -280,8 +286,9 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
 .checkout-toggle input { accent-color: var(--action); margin: 5px 0 0; }
 .checkout-toggle small { display: block; color: var(--muted); }
 .wallet-address { overflow-wrap: anywhere; }
-.revision-notice { border: 1px solid var(--tint-line); padding: 10px 12px; background: var(--tint); color: var(--action); }
-.settlement { display: grid; gap: 9px; padding: 16px; border: 1px solid var(--tint-line); border-radius: 8px; background: var(--tint); }
+.revision-notice { border: 1px solid var(--amber-line); padding: 10px 12px; background: var(--amber-bg); color: var(--amber); }
+.settlement { display: grid; gap: 9px; padding: 16px; border: 1px solid var(--blue-line); border-radius: 8px; background: var(--blue-bg); }
+.settlement :is(.document-line svg, .settlement-amount, .payment-steps) { color: var(--blue); }
 .settlement h2 { font-size: 1.15rem; }
 .settlement-amount { font-size: 1.5rem; font-weight: 700; }
 .settlement .button { justify-self: start; }
@@ -363,10 +370,12 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
 .workflow h2 { font-size: clamp(1.8rem, 3.5vw, 2.9rem); }
 .workflow-steps { gap: 16px; margin-top: 24px; }
 .workflow-steps li, .workflow-steps li:first-child { display: grid; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; }
-.workflow-art { display: grid; place-items: center; min-height: 145px; overflow: hidden; border-radius: 9px; background: #f4f4f4; perspective: 560px; }
+.workflow-art { display: grid; place-items: center; min-height: 145px; overflow: hidden; border-radius: 9px; background: var(--tint); perspective: 560px; }
+.workflow-steps li:nth-child(2) .workflow-art { background: var(--blue-bg); }
+.workflow-steps li:last-child .workflow-art { background: var(--amber-bg); }
 .workflow-object { display: grid; place-items: center; width: 76px; height: 76px; border: 1px solid #a3a3a3; border-radius: 13px; background: white; color: var(--action); transform: rotateX(23deg) rotateY(-24deg) rotateZ(-11deg); box-shadow: 3px 4px #c6c6c6, 6px 8px #c6c6c6, 14px 19px 20px #00000024; }
 .workflow-object svg { width: 34px; height: 34px; }
-.workflow-steps li:nth-child(2) .workflow-object { transform: rotateX(21deg) rotateY(24deg) rotateZ(9deg); }
+.workflow-steps li:nth-child(2) .workflow-object { color: var(--blue); transform: rotateX(21deg) rotateY(24deg) rotateZ(9deg); }
 .workflow-steps li:last-child .workflow-object { background: var(--action); color: white; }
 .why-agreemargin { border-bottom: 1px solid var(--line); }
 .product-footer { border-top: 1px solid var(--line); }

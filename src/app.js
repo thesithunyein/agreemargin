@@ -166,7 +166,7 @@ function updateScope(container, data, choice) {
 }
 
 function heroGlobe() {
-  const colors = ['#171717', '#363636', '#595959', '#737373', '#8c8c8c', '#a3a3a3'];
+  const colors = ['#145849', '#3A8A72', '#76AE99', '#2A61A0', '#769BCD', '#BC853B'];
   const count = 700;
   const dots = Array.from({ length: count }, (_, index) => {
     const y = 1 - 2 * (index + .5) / count;
