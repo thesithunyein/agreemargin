@@ -153,15 +153,19 @@ function scope(data, choice = 'add') {
   return lines.length ? `<ul class="scope-list">${lines.map((item) => `<li>${icon('check')}<span>${escape(item)}</span></li>`).join('')}</ul>` : '<p class="muted">Scope items appear here as you type.</p>';
 }
 
+function scopeLabel(choice) {
+  return { add: 'What changes', swap: 'What gets swapped', keep: 'What stays the same' }[choice];
+}
+
 function scopeSection(data, choice = 'add') {
-  return `<section class="scope"><div class="baseline" data-baseline ${data.baseline ? '' : 'hidden'}><h2>Original agreement</h2><p>${escape(data.baseline)}</p></div><h2 data-scope-label>${choice === 'swap' ? 'Scope swap' : 'Scope items'}</h2><div data-scope-items>${scope(data, choice)}</div></section>`;
+  return `<section class="scope"><h2 data-scope-label>${scopeLabel(choice)}</h2><div data-scope-items>${scope(data, choice)}</div><div class="baseline" data-baseline ${data.baseline ? '' : 'hidden'}><h2>Original agreement</h2><p>${escape(data.baseline)}</p></div></section>`;
 }
 
 function updateScope(container, data, choice) {
   const baseline = container.querySelector('[data-baseline]');
   baseline.hidden = !data.baseline;
   baseline.querySelector('p').textContent = data.baseline ?? '';
-  container.querySelector('[data-scope-label]').textContent = choice === 'swap' ? 'Scope swap' : 'Scope items';
+  container.querySelector('[data-scope-label]').textContent = scopeLabel(choice);
   container.querySelector('[data-scope-items]').innerHTML = scope(data, choice);
 }
 
@@ -225,7 +229,12 @@ function home() {
         <li>${icon('check')}<span>See which revision your client accepted.</span></li>
         <li>${icon('check')}<span>Print the decision with its date and time.</span></li>
         <li>${icon('check')}<span>See pending fees and estimated margin.</span></li>
-      </ul><a class="text-action" href="/workspace">Open my requests</a></div>
+      </ul><a class="text-action" href="/workspace">Open my requests</a>
+      <figure class="card receipt-example"><figcaption class="hint">Example approval receipt</figcaption>
+        <p><strong>Add a pricing page</strong> <span class="status approved">Approved</span></p>
+        ${impact({ addCents: 45000, addDays: 2, currency: 'USD' })}
+        <p class="hint">Revision 2 · Approved November 18, 2026</p>
+      </figure></div>
     </div></section>
     <section class="shell landing-faq" aria-labelledby="landing-faq-title"><h2 id="landing-faq-title">Common questions</h2><div class="faq-list">
       <details><summary>Do clients need an account?</summary><p>Clients open the link, choose an option, and enter their name.</p></details>
@@ -335,6 +344,7 @@ function requestHeader(data) {
 
 function decisionRecord(data) {
   return `<section class="record-summary enter"><h2>${icon('check')}Decision recorded</h2><dl class="record-details">
+    <dt>Client decision</dt><dd>${escape(status(data)[0])}</dd><dt>Revision</dt><dd>${data.revision ?? 1}</dd>
     <dt>Recorded by</dt><dd>${escape(data.respondent)}</dd><dt>Decision time</dt><dd><time datetime="${new Date(data.decidedAt).toISOString()}">${escape(date(data.decidedAt, true))}</time></dd>
     <dt>Reference</dt><dd class="number reference">${escape(data.id)}</dd></dl><button class="button secondary print" type="button">${icon('print')}Print receipt</button></section>`;
 }
@@ -390,7 +400,8 @@ function review(data, ref, notice = '', draft = null) {
   setTitle(data.status === 'decided' ? 'Decision receipt' : 'Client approval');
   const choice = data.choice ?? 'add';
   const options = [['add', 'Add the change'], ...(data.swap ? [['swap', 'Swap work']] : []), ['keep', 'Keep original scope']];
-  const form = `<form id="decision" class="decision-form"><fieldset><legend>Choose how to proceed</legend>${options.map(([key, label]) => `<label class="choice"><input type="radio" name="choice" value="${key}"${key === choice ? ' checked' : ''}><strong>${label}</strong><span class="number">${key === 'add' ? escape(money(data.addCents, data.currency, true)) : 'Same fee'}</span></label>`).join('')}</fieldset>
+  const form = `<form id="decision" class="decision-form"><fieldset><legend>Choose how to proceed</legend>${options.map(([key, label]) => `<label class="choice"><input type="radio" name="choice" value="${key}"${key === choice ? ' checked' : ''}><strong>${label}</strong><span class="number">${key === 'add' ? `${escape(money(data.addCents, data.currency, true))} · ${timing(data.addDays)}` : 'Same fee and timeline'}</span></label>`).join('')}</fieldset>
+    <p class="screen-reader" role="status" id="decision-impact"></p>
     <div class="field"><label for="respondent">Your name</label><input id="respondent" name="name" autocomplete="name" required maxlength="80"></div>
     ${data.receiver ? `<div class="field" id="payer-field"><label for="payer">Your paying wallet · Sui Testnet</label><input id="payer" name="payer" required pattern="0x[0-9a-fA-F]{64}" autocomplete="off" spellcheck="false" placeholder="0x…"><span class="hint">Copy your public address from Slush. <a href="/docs#test-payment" target="_blank" rel="noopener">New to wallets? Set one up ↗</a><br> The studio receives test USDC at <span class="wallet-address">${escape(data.receiver)}</span>.</span></div>` : ''}<p class="hint">Your name appears as entered on the receipt. Reply by ${escape(date(data.expiresAt))}.</p><p class="form-feedback" role="alert"></p><button type="submit" class="button primary sign-off">${icon('check')}${data.receiver ? 'Approve terms' : 'Approve change'}</button></form>`;
   render(`<div class="shell receipt-shell"><article class="card receipt-card">${notice ? `<p class="revision-notice" role="alert">${escape(notice)}</p>` : ''}${requestHeader(data)}${impact(data, choice)}${scopeSection(data, choice)}${data.status === 'open' ? form : data.status === 'decided' ? decisionRecord(data) + paymentSection(data) : closedRecord(data)}</article></div>`);
@@ -406,6 +417,7 @@ function review(data, ref, notice = '', draft = null) {
     const next = event.target.value;
     updateImpact(card, data, next);
     updateScope(card, data, next);
+    node.querySelector('#decision-impact').textContent = `${scopeLabel(next)}. Fee change ${money(amountFor(data, next), data.currency, true)}. Timeline ${timing(next === 'add' ? data.addDays : 0)}.`;
     if (node.elements.payer) {
       node.elements.payer.disabled = next !== 'add';
       document.querySelector('#payer-field').hidden = next !== 'add';
@@ -471,7 +483,7 @@ async function copyLink(button, value, label = 'Link') {
     button.setAttribute('aria-live', 'polite');
     setTimeout(() => { button.innerHTML = original; delete button.dataset.copied; }, 1600);
   } catch {
-    void showDialog(`Copy ${label.toLowerCase()}`, `<div class="field"><label for="copy-value">${label}</label><textarea id="copy-value" rows="${label === 'Client message' ? 7 : 2}" readonly>${escape(value)}</textarea></div>`);
+    void showDialog(`Copy ${label.toLowerCase()}`, `<div class="field"><label for="copy-value">${label}</label><textarea id="copy-value" rows="${label === 'Link' ? 2 : 7}" readonly>${escape(value)}</textarea></div>`);
     const field = document.querySelector('#copy-value');
     field.focus();
     field.select();
@@ -490,10 +502,13 @@ async function manage(data, ref) {
     'If you can’t open the link, let me know so I can check your access.'
   ].join('\n\n');
   const choice = data.choice ?? 'add';
+  const invoiceSummary = data.status === 'decided' && choice === 'add' && data.addCents > 0
+    ? `${data.project} — ${data.title}\n${data.details}\nApproved fee: ${money(data.addCents, data.currency)} ${data.currency}\nTimeline: ${timing(data.addDays)}\nRevision ${data.revision ?? 1} · ${date(data.decidedAt, true)}\nReference: ${data.id}`
+    : null;
   render(`<div class="shell receipt-shell"><article class="card receipt-card">${requestHeader(data)}${impact(data, choice)}${scopeSection(data, choice)}${data.status === 'decided' ? decisionRecord(data) : data.status === 'open' ? '' : closedRecord(data)}
     ${paymentSection(data)}<section class="manage-links no-print"><h2>${data.status === 'open' ? 'Send to your client' : 'Share the record'}</h2>
     <p class="hint">${data.status === 'open' ? `Send this review link to your client. Replies close ${escape(date(data.expiresAt))}.` : 'Use the review link to share the client view.'}</p>
-    <div class="actions"><button class="button primary" id="copy-client" type="button">${icon('copy')}Copy review link</button>${data.status === 'open' ? '<button class="button secondary" id="copy-message" type="button">Copy client message</button>' : ''}<a class="button secondary" href="${escape(url)}" target="_blank" rel="noreferrer">Open client view ↗</a></div></section>
+    <div class="actions"><button class="button primary" id="copy-client" type="button">${icon('copy')}Copy review link</button>${data.status === 'open' ? '<button class="button secondary" id="copy-message" type="button">Copy client message</button>' : ''}${invoiceSummary ? '<button class="button secondary" id="copy-invoice" type="button">Copy invoice summary</button>' : ''}<a class="button secondary" href="${escape(url)}" target="_blank" rel="noreferrer">Open client view ↗</a></div></section>
     <section class="manage-links no-print"><h2>Studio access</h2><p class="hint">Save the private manage link to open this request on another device.</p><div class="actions">${data.status === 'open' ? `<a class="button secondary" href="${link('/new', ref)}">Revise terms</a>` : ''}<button class="button secondary" id="copy-owner" type="button">${icon('copy')}Copy manage link</button></div>
     ${data.deliveryCents != null ? `<p class="hint">Delivery cost <span class="number">${escape(money(data.deliveryCents, data.currency))}</span></p>` : ''}</section></article>
     <details class="request-controls no-print"><summary>More actions</summary><p class="form-feedback" role="alert"></p><div class="actions">${data.status === 'open' ? '<button class="button secondary" id="withdraw" type="button">Withdraw request</button>' : ''}<button class="button danger" id="delete" type="button">Delete request</button></div></details></div>`);
@@ -501,6 +516,7 @@ async function manage(data, ref) {
   bindPayment(data, ref, 'manage');
   document.querySelector('#copy-client').addEventListener('click', (event) => copyLink(event.currentTarget, url));
   document.querySelector('#copy-message')?.addEventListener('click', (event) => copyLink(event.currentTarget, clientMessage, 'Client message'));
+  document.querySelector('#copy-invoice')?.addEventListener('click', (event) => copyLink(event.currentTarget, invoiceSummary, 'Invoice summary'));
   document.querySelector('#copy-owner').addEventListener('click', (event) => copyLink(event.currentTarget, link('/manage', ref)));
   document.querySelector('#withdraw')?.addEventListener('click', (event) => changeRequest(event.currentTarget, ref, false));
   document.querySelector('#delete').addEventListener('click', (event) => changeRequest(event.currentTarget, ref, true));
@@ -717,7 +733,7 @@ function guide(isFaq) {
     <h3>Move your request list</h3><p>In <strong>My requests</strong>, select <strong>Download backup</strong> under <strong>Request recovery</strong>. Open the same AgreeMargin site in the new browser, choose the file, and select <strong>Restore requests</strong>. This adds saved links to the existing list. The file contains private manage links and cannot recover deleted requests.</p>
     <h3>Close or remove a request</h3><p>Use <strong>More actions</strong> to withdraw an open request or delete a record. A withdrawn request stops accepting responses. A deleted request can no longer be opened by either link.</p></section>
     <section id="review"><h2>Review a change</h2><ol><li>Open the link from your studio. Check the revision, fee, and timeline.</li><li>Choose added work, a scope swap if offered, or the original scope.</li><li>Enter your name and confirm. You can print the decision receipt.</li></ol><p>Your decision locks that revision. If the terms need to change after approval, ask the studio for a new request.</p></section>
-    <section id="receipts"><h2>Receipts and ledger</h2><p>After the client decides, both sides can open their original links to see the choice, revision, and decision time. Use <strong>Print receipt</strong> to print or save a PDF through your browser.</p><p><strong>My requests</strong> shows the requests saved in this browser. Pending fees are grouped by currency. Estimated margin uses the approved fee and the private delivery cost when one was entered.</p></section>
+    <section id="receipts"><h2>Receipts and ledger</h2><p>After the client decides, both sides can open their original links to see the choice, revision, and decision time. Use <strong>Print receipt</strong> to print or save a PDF through your browser. For an approved change with an added fee, use <strong>Copy invoice summary</strong> in the studio view to paste the approved terms into your invoicing tool.</p><p><strong>My requests</strong> shows the requests saved in this browser. Pending fees are grouped by currency. Estimated margin uses the approved fee and the private delivery cost when one was entered.</p></section>
     <section id="test-payment"><h2>Make a test payment</h2><p>Use this when the studio offers Sui Testnet checkout. You’ll need a wallet and test funds.</p><ol>
     <li>Open <a href="https://slush.app/" target="_blank" rel="noreferrer">Slush</a>, create or open a wallet, and select Sui Testnet. Copy your public wallet address. It starts with <code>0x</code>. Keep your recovery phrase private.</li>
     <li>Use the <a href="https://faucet.sui.io/" target="_blank" rel="noreferrer">Sui faucet</a> for test SUI and the <a href="https://faucet.circle.com/" target="_blank" rel="noreferrer">Circle faucet</a> for test USDC. Select Sui Testnet and use the same public address for both.</li>

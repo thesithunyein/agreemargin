@@ -146,6 +146,8 @@ See [Security policy](SECURITY.md) and [Privacy & access](https://agreemargin.ve
 
 ## Launch checks
 
+For each pilot request, record the studio's usual process, how long it took to send the request, whether the client could explain the fee and timeline, whether they decided without help, and whether they could reopen the receipt. Track a second request sent without prompting and record quoted, approved, and actually paid amounts separately. Share only anonymized results or details the participants have agreed to share.
+
 - Run three to five real change requests with at least two consenting studios. Record whether each client understood the fee and timeline, approved without coaching, and reopened the receipt. Record repeat use separately.
 - On desktop and mobile, create a request, open the review link in a fresh browser, approve it, and reopen the receipt. Check keyboard navigation, stale and expired links, a double submit, and retry after a dropped connection.
 - Export the studio request list and import it into a clean browser profile on the same deployment. Confirm that the restored approval shows the original revision, decision timestamp, and amount. Test a duplicate import and an invalid file.

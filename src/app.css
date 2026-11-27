@@ -291,6 +291,10 @@ dialog .actions { margin-top: 15px; }
 button.text-action { width: fit-content; padding: 0; border: 0; background: transparent; text-decoration: underline; }
 .baseline { margin-bottom: 13px; color: var(--muted); overflow-wrap: anywhere; }
 .baseline p { white-space: pre-wrap; font-size: .875rem; }
+.scope .baseline { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--line); }
+.receipt-example { display: grid; gap: 10px; margin: 12px 0 0; padding: 16px; }
+.landing-section .receipt-example p { max-width: none; margin: 0; }
+.receipt-example p:has(.status) { display: flex; gap: 8px; justify-content: space-between; align-items: center; flex-wrap: wrap; color: var(--ink); }
 .workflow-steps { padding: 0; list-style: none; }
 .workflow-steps li { padding-inline: 20px; border-left: 1px solid var(--line); }
 .workflow-steps li:first-child { padding-left: 0; border: 0; }
