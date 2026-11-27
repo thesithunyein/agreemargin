@@ -589,14 +589,15 @@ function workspace() {
   setTitle('My requests');
   const items = saved();
   render(`<div class="shell page"><header class="page-head ledger-head">${heading('My requests', 'Track requests saved in this browser.')}<div class="actions">${items.length ? `<button class="button secondary" id="refresh" type="button">${icon('refresh')}Refresh</button>` : ''}<a class="button primary" href="/new">${icon('plus')}New request</a></div></header>
-    <div class="metrics" id="metrics" aria-busy="${Boolean(items.length)}">${metrics([], Boolean(items.length))}</div>
+    <div class="workspace-layout"><div class="metrics" id="metrics" aria-busy="${Boolean(items.length)}">${metrics([], Boolean(items.length))}</div>
+    <div class="workspace-requests">
     <section class="card ledger" aria-labelledby="ledger-title"><div class="ledger-title"><h2 id="ledger-title" tabindex="-1">Requests</h2><p class="hint" id="ledger-feedback" role="status"></p></div>
     ${items.length ? `<div class="table-scroll" tabindex="0" role="region" aria-label="Request ledger"><table><thead><tr><th scope="col">Request</th><th scope="col">Status</th><th scope="col" class="ledger-fee">Fee</th><th scope="col">Sent</th><th scope="col" class="table-action">Review link</th></tr></thead><tbody>${ledgerRows(items.map((item) => ({ item, loading: true })))}</tbody></table></div>` : '<div class="empty"><span class="outline-icon">' + icon('file') + '</span><h3>No requests yet</h3><p>Create a request to track its fee and decision here.</p></div>'}</section>
     <details class="recovery"><summary>Open a saved manage link</summary><form id="recover"><div class="field"><label for="manage-link">Manage link</label><input id="manage-link" type="url" name="link" autocomplete="off" required></div><button class="button secondary" type="submit">Open link</button><p class="form-feedback" role="alert"></p></form></details>
     <details class="recovery"><summary>Back up or restore your request list</summary>
       <p class="hint">Use a backup to open your requests in another browser. Keep this file private. Anyone with it can manage those requests.</p>
       <div class="actions"><button class="button secondary" id="export-requests" type="button"${items.length ? '' : ' disabled'}>Download backup</button></div>
-      <form id="import-requests"><div class="field"><label for="request-backup">AgreeMargin backup file</label><input id="request-backup" name="backup" type="file" accept=".json,application/json" required></div><button class="button secondary" type="submit">Restore requests</button><p class="form-feedback" role="alert"></p></form></details></div>`);
+      <form id="import-requests"><div class="field"><label for="request-backup">AgreeMargin backup file</label><input id="request-backup" name="backup" type="file" accept=".json,application/json" required></div><button class="button secondary" type="submit">Restore requests</button><p class="form-feedback" role="alert"></p></form></details></div></div></div>`);
   document.querySelector('#recover').addEventListener('submit', (event) => {
     event.preventDefault();
     const form = event.currentTarget;

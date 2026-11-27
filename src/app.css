@@ -1,23 +1,15 @@
 @font-face {
-  font-family: "Inter";
-  src: url("/inter-latin.woff2") format("woff2");
+  font-family: "DM Sans";
+  src: url("/dm-sans-latin.woff2") format("woff2");
   font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Instrument Serif";
-  src: url("/instrument-serif-italic.woff2") format("woff2");
-  font-style: italic;
-  font-weight: 400;
+  font-weight: 100 1000;
   font-display: swap;
 }
 
 :root {
   color-scheme: light;
   background: #fff;
-  --canvas: #fff;
+  --canvas: #f5f6f4;
   --surface: #fff;
   --line: #DFE6E2;
   --field-line: #89968F;
@@ -37,7 +29,9 @@
   --amber-line: #E8D0A0;
   --error-ink: #912E34;
   --error-bg: #FFF1F2;
-  --sans: "Inter", system-ui, sans-serif;
+  --sans: "DM Sans", system-ui, sans-serif;
+  --panel-radius: 22px;
+  --panel-padding: clamp(18px, 3vw, 32px);
   --ease-out: cubic-bezier(.16, 1, .3, 1);
 }
 
@@ -81,7 +75,7 @@ code { font-family: inherit; }
 .button.danger { border-color: #A3A3A3; color: var(--error-ink); }
 .button.danger:hover { background: var(--error-bg); }
 .button:active { filter: brightness(.95); }
-.card { min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.card { min-width: 0; border: 1px solid var(--line); border-radius: var(--panel-radius); background: var(--surface); }
 .meta, .hint, .muted { color: var(--muted); }
 .meta, .hint { font-size: .875rem; }
 .meta { overflow-wrap: anywhere; }
@@ -121,7 +115,7 @@ code { font-family: inherit; }
 .page-description { margin-top: 7px; color: var(--muted); }
 .editor-layout { display: grid; grid-template-columns: minmax(0, 1.16fr) minmax(0, .84fr); gap: 23px; align-items: start; }
 .editor { overflow: hidden; }
-.editor-section { display: grid; gap: 14px; padding: 22px; min-width: 0; }
+.editor-section { display: grid; gap: 14px; padding: var(--panel-padding); min-width: 0; }
 .editor-section + .editor-section { border-top: 1px solid var(--line); }
 .editor-section h2, .preview-label h2, .ledger-title h2 { font-size: 1.05rem; font-weight: 720; letter-spacing: -.015em; }
 .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -157,7 +151,7 @@ code { font-family: inherit; }
 .scope .muted { font-size: .9rem; }
 
 .receipt-shell { max-width: 670px; padding-block: 43px 62px; }
-.receipt-card { display: grid; gap: 20px; padding: clamp(18px, 3.4vw, 30px); box-shadow: 0 12px 32px #00000008; }
+.receipt-card { display: grid; gap: 24px; padding: var(--panel-padding); }
 .receipt-header { display: grid; gap: 8px; }
 .receipt-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 10px; }
 .receipt-header h1 { font-size: clamp(1.85rem, 4.4vw, 2.8rem); font-weight: 740; line-height: 1.08; letter-spacing: -.055em; overflow-wrap: anywhere; }
@@ -188,19 +182,22 @@ code { font-family: inherit; }
 .skeleton.short { width: 36%; }
 
 .ledger-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px; }
-.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
-.metric { display: grid; align-content: start; gap: 7px; padding: 15px; }
+.workspace-layout { display: grid; grid-template-columns: minmax(220px, .75fr) minmax(0, 2.25fr); gap: 16px; align-items: start; }
+.workspace-requests { min-width: 0; }
+.metrics { display: grid; gap: 12px; }
+.metric { display: grid; align-content: start; gap: 8px; padding: clamp(16px, 2vw, 24px); }
+.metric:first-child { background: var(--tint); border-color: var(--tint-line); }
 .metric h2 { display: flex; gap: 7px; align-items: center; color: var(--muted); font-size: .875rem; font-weight: 700; }
 .metric h2 svg { width: 16px; height: 16px; color: var(--action); }
-.metric-value { display: grid; gap: 4px; color: var(--ink); font-size: clamp(1.05rem, 2.5vw, 1.9rem); font-weight: 720; line-height: 1.2; letter-spacing: -.06em; overflow-wrap: anywhere; }
+.metric-value { display: grid; gap: 4px; color: var(--ink); font-size: clamp(1.4rem, 2.8vw, 2.15rem); font-weight: 720; line-height: 1.2; letter-spacing: -.045em; overflow-wrap: anywhere; }
 .metric .hint { font-size: .8125rem; }
 .ledger { overflow: hidden; }
-.ledger-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.ledger-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
 .table-scroll { overflow: auto; }
 .table-scroll:focus-visible { outline-offset: -3px; }
-table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: .875rem; }
+table { width: 100%; min-width: 565px; border-collapse: collapse; font-size: .875rem; }
 thead { background: var(--canvas); }
-table :is(th, td) { text-align: left; padding: 10px 12px; }
+table :is(th, td) { text-align: left; padding: 12px 10px; }
 table :is(th, td):first-child { padding-left: 16px; }
 table :is(th, td):last-child { padding-right: 16px; }
 thead th { color: var(--muted); font-weight: 700; }
@@ -338,7 +335,6 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
 .header { background: var(--surface); backdrop-filter: none; }
 .hero { grid-template-columns: minmax(0, 1fr) minmax(0, .95fr); gap: clamp(22px, 5vw, 74px); padding-block: clamp(44px, 8vw, 100px); }
 .hero-copy h1 { max-width: 13ch; font-size: clamp(2.55rem, 6.2vw, 5.25rem); font-weight: 400; line-height: 1.1; letter-spacing: -.025em; }
-.hero-copy h1 em { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; color: var(--action); }
 .hero-copy p { max-width: 37ch; }
 .hero-art svg { display: block; width: 100%; height: auto; }
 .workflow-band { background: var(--surface); border-block: 1px solid var(--line); scroll-margin-top: 68px; }
@@ -406,6 +402,7 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
   overflow: hidden;
   isolation: isolate;
   text-align: center;
+  background: var(--surface);
   padding-block: clamp(48px, 8vh, 104px) 230px;
 }
 .orbit-copy { z-index: 1; }
@@ -479,12 +476,25 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
   to { transform: translate3d(0, -18px, 0); }
 }
 @keyframes globe-rotate { to { transform: rotate(360deg); } }
+@media (max-width: 920px) {
+  .workspace-layout { grid-template-columns: minmax(0, 1fr); }
+  .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 @media (max-width: 690px) {
   .workflow-art { min-height: 116px; }
   .product-footer .footer { grid-template-columns: 1fr 1fr; }
   .product-footer .footer > div { grid-column: 1 / -1; }
 }
+@media (max-width: 480px) {
+  .metrics { grid-template-columns: minmax(0, 1fr); }
+  .metric { grid-template-columns: minmax(0, 1fr) auto; padding: 14px 16px; align-items: baseline; }
+  .metric h2 { display: flex; }
+  .metric h2 svg { margin: 0; flex: none; }
+  .metric-value { text-align: right; }
+  .metric .hint { grid-column: 1 / -1; }
+}
 @media print {
+  body { background: white; }
   .header, .product-footer, .no-print, .print, .skip { display: none !important; }
   .receipt-shell { width: 100%; max-width: none; padding: 0; }
   .receipt-card { border: none; box-shadow: none; padding: 0; }
