@@ -151,7 +151,8 @@ For each pilot request, record the studio's usual process, how long it took to s
 - Run three to five real change requests with at least two consenting studios. Record whether each client understood the fee and timeline, approved without coaching, and reopened the receipt. Record repeat use separately.
 - On desktop and mobile, create a request, open the review link in a fresh browser, approve it, and reopen the receipt. Check keyboard navigation, stale and expired links, a double submit, and retry after a dropped connection.
 - Export the studio request list and import it into a clean browser profile on the same deployment. Confirm that the restored approval shows the original revision, decision timestamp, and amount. Test a duplicate import and an invalid file.
-- Configure production alerts for API errors and unavailable storage. Rehearse database recovery into an isolated database using the hosting provider’s restore procedure. Compare a known receipt against the source and record restore time and data loss before relying on the procedure.
+- Monitor `GET /api/health` for HTTP 200. The endpoint checks database connectivity and returns HTTP 503 when storage is unavailable. In an isolated deployment, test that the alert reaches the operator when storage is unavailable and clears when it recovers.
+- Rehearse database recovery into an isolated database using the hosting provider’s restore procedure. Compare a known receipt against the source and record restore time and data loss before relying on the procedure.
 - Run Testnet checkout as a separate check with a funded test wallet. Reopen the receipt in a fresh browser and confirm that approval and Testnet verification are labeled separately.
 
 ## Contributing and conduct

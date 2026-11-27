@@ -21,6 +21,10 @@ const make = async (data = details) => {
 
 assert.equal((await send('/')).status, 200);
 assert.equal((await send('/app.js')).status, 200);
+assert.deepEqual(await (await send('/api/health')).json(), { status: 'ok' });
+const unhealthy = await worker.fetch(new Request(origin + '/api/health'), {});
+assert.equal(unhealthy.status, 503);
+assert.deepEqual(await unhealthy.json(), { status: 'unavailable' });
 assert.equal((await send('/api/requests', 'POST', { ...details, addCents: -1 })).status, 422);
 assert.equal((await send('/api/requests', 'POST', { ...details, deliveryCents: -1 })).status, 422);
 assert.equal((await send('/api/requests', 'POST', details, '', { Origin: 'https://other.invalid' })).status, 403);

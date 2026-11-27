@@ -261,6 +261,14 @@ export default {
   async fetch(request, env) {
     try {
       const url = new URL(request.url);
+      if (url.pathname === '/api/health' && request.method === 'GET') {
+        try {
+          await env.DB.prepare('SELECT 1 AS ready').bind().first();
+          return json({ status: 'ok' });
+        } catch {
+          return json({ status: 'unavailable' }, 503);
+        }
+      }
       if (url.pathname.startsWith('/api/')) return await handleApi(request, url, env.DB);
       if (!['GET', 'HEAD'].includes(request.method)) throw new HttpError(405, 'This action is unavailable.');
       if (url.pathname === '/FAQ') return Response.redirect(new URL('/faq', url), 308);

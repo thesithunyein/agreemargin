@@ -398,18 +398,20 @@ function bindPayment(data, ref, role) {
 
 function review(data, ref, notice = '', draft = null) {
   setTitle(data.status === 'decided' ? 'Decision receipt' : 'Client approval');
-  const choice = data.choice ?? 'add';
+  const choice = data.choice ?? (draft?.revision === data.revision ? draft?.choice : null) ?? 'add';
   const options = [['add', 'Add the change'], ...(data.swap ? [['swap', 'Swap work']] : []), ['keep', 'Keep original scope']];
+  const submitLabel = (selected) => selected === 'add' && data.receiver ? 'Approve terms' : selected === 'keep' ? 'Confirm choice' : decisions[selected];
   const form = `<form id="decision" class="decision-form"><fieldset><legend>Choose how to proceed</legend>${options.map(([key, label]) => `<label class="choice"><input type="radio" name="choice" value="${key}"${key === choice ? ' checked' : ''}><strong>${label}</strong><span class="number">${key === 'add' ? `${escape(money(data.addCents, data.currency, true))} · ${timing(data.addDays)}` : 'Same fee and timeline'}</span></label>`).join('')}</fieldset>
     <p class="screen-reader" role="status" id="decision-impact"></p>
     <div class="field"><label for="respondent">Your name</label><input id="respondent" name="name" autocomplete="name" required maxlength="80"></div>
-    ${data.receiver ? `<div class="field" id="payer-field"><label for="payer">Your paying wallet · Sui Testnet</label><input id="payer" name="payer" required pattern="0x[0-9a-fA-F]{64}" autocomplete="off" spellcheck="false" placeholder="0x…"><span class="hint">Copy your public address from Slush. <a href="/docs#test-payment" target="_blank" rel="noopener">New to wallets? Set one up ↗</a><br> The studio receives test USDC at <span class="wallet-address">${escape(data.receiver)}</span>.</span></div>` : ''}<p class="hint">Your name appears as entered on the receipt. Reply by ${escape(date(data.expiresAt))}.</p><p class="form-feedback" role="alert"></p><button type="submit" class="button primary sign-off">${icon('check')}${data.receiver ? 'Approve terms' : 'Approve change'}</button></form>`;
+    ${data.receiver ? `<div class="field" id="payer-field"${choice !== 'add' ? ' hidden' : ''}><label for="payer">Your paying wallet · Sui Testnet</label><input id="payer" name="payer" required${choice !== 'add' ? ' disabled' : ''} pattern="0x[0-9a-fA-F]{64}" autocomplete="off" spellcheck="false" placeholder="0x…"><span class="hint">Copy your public address from Slush. <a href="/docs#test-payment" target="_blank" rel="noopener">New to wallets? Set one up ↗</a><br> The studio receives test USDC at <span class="wallet-address">${escape(data.receiver)}</span>.</span></div>` : ''}<p class="hint">Your name appears as entered on the receipt. Reply by ${escape(date(data.expiresAt))}.</p><p class="form-feedback" role="alert"></p><button type="submit" class="button primary sign-off">${icon('check')}${submitLabel(choice)}</button></form>`;
   render(`<div class="shell receipt-shell"><article class="card receipt-card">${notice ? `<p class="revision-notice" role="alert">${escape(notice)}</p>` : ''}${requestHeader(data)}${impact(data, choice)}${scopeSection(data, choice)}${data.status === 'open' ? form : data.status === 'decided' ? decisionRecord(data) + paymentSection(data) : closedRecord(data)}</article></div>`);
   bindPayment(data, ref, 'review');
   document.querySelector('.print')?.addEventListener('click', () => print());
   const node = document.querySelector('#decision');
   if (!node) return;
   if (draft) node.elements.name.value = draft.name;
+  if (node.elements.payer && draft?.revision === data.revision) node.elements.payer.value = draft.payer ?? '';
   const button = node.querySelector('button');
   const card = document.querySelector('.receipt-card');
   node.addEventListener('change', (event) => {
@@ -422,7 +424,7 @@ function review(data, ref, notice = '', draft = null) {
       node.elements.payer.disabled = next !== 'add';
       document.querySelector('#payer-field').hidden = next !== 'add';
     }
-    button.innerHTML = `${icon('check')}${next === 'add' && data.receiver ? 'Approve terms' : next === 'keep' ? 'Confirm choice' : decisions[next]}`;
+    button.innerHTML = `${icon('check')}${submitLabel(next)}`;
   });
   node.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -436,12 +438,13 @@ function review(data, ref, notice = '', draft = null) {
       review(await api('POST', 'review', ref, { ...values, revision: data.revision }), ref);
       main.focus();
     } catch (error) {
-      if (error.status === 409) {
-        await openRequest('review', error.message, { ...data, name: values.name });
+      if (error.status === 409 || error.status >= 500 || error.name === 'TimeoutError' || error instanceof TypeError) {
+        const notice = error.status === 409 ? error.message : 'The connection was interrupted. This request is still open. Review your choice before trying again.';
+        await openRequest('review', notice, { ...data, ...values });
         main.focus();
         return;
       }
-      feedback(node, error.name === 'TimeoutError' ? 'Could not confirm the decision. Refresh to check its status.' : error.message);
+      feedback(node, error.message);
       for (const radio of choices) radio.disabled = false;
       restore();
     }

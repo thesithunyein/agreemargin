@@ -6,6 +6,7 @@
     { "source": "/", "destination": "/api/handler" },
     { "source": "/:page(new|workspace|review|manage|privacy|docs|faq|FAQ)", "destination": "/api/handler?__route=:page" },
     { "source": "/:asset(app.css|app.js|mark.svg|dm-sans-latin.woff2)", "destination": "/api/handler?__route=:asset" },
+    { "source": "/api/health", "destination": "/api/handler?__route=api/health" },
     { "source": "/api/requests", "destination": "/api/handler?__route=api/requests" },
     { "source": "/api/requests/:id/:role", "destination": "/api/handler?__route=api/requests/:id/:role" },
     { "source": "/api/requests/:id/:role/payment", "destination": "/api/handler?__route=api/requests/:id/:role/payment" }
