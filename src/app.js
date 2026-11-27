@@ -198,7 +198,7 @@ function home() {
   render(`<div class="landing"><section class="shell hero">
     <div class="hero-copy"><h1>Get extra work approved.</h1>
     <p>Agree on the price and timeline before you start.</p>
-    <div class="actions"><a class="button primary" href="/new">New request ${icon('plus')}</a><a class="text-action" href="/workspace">My requests →</a></div></div>
+    <div class="actions"><a class="button primary" href="/new">New request ${icon('plus')}</a><a class="text-action" href="/workspace">My requests</a></div></div>
     ${heroGlobe()}</section>
     <section class="workflow-band" id="workflow" aria-labelledby="workflow-title"><div class="workflow shell"><h2 id="workflow-title">How it works</h2><ol class="workflow-steps">${steps.map(([name, title, description]) => `<li>${workflowArt(name)}<div><h3>${title}</h3><p>${description}</p></div></li>`).join('')}</ol></div></section>
     <section class="shell landing-section why-agreemargin" aria-labelledby="why-title">
@@ -223,7 +223,7 @@ function home() {
         <li>${icon('check')}<span>See which revision your client accepted.</span></li>
         <li>${icon('check')}<span>Print the decision with its date and time.</span></li>
         <li>${icon('check')}<span>See pending fees and estimated margin.</span></li>
-      </ul><a class="text-action" href="/workspace">Open my requests →</a></div>
+      </ul><a class="text-action" href="/workspace">Open my requests</a></div>
     </div></section>
     <section class="shell landing-faq" aria-labelledby="landing-faq-title"><h2 id="landing-faq-title">Common questions</h2><div class="faq-list">
       <details><summary>Do clients need an account?</summary><p>Clients open the link, choose an option, and enter their name.</p></details>
@@ -640,18 +640,30 @@ function guide(isFaq) {
     ['Can I use real money here?', 'Checkout uses Sui Testnet and test tokens. Test USDC and test SUI have no cash value.'],
     ['Why did verification fail?', 'Check that the wallet was on Sui Testnet and the ID came from this checkout. A new transfer can take time to appear. Keep the ID and retry verification before attempting another payment.'],
     ['What if the price changed while I was reviewing?', 'AgreeMargin prompts you to review the latest revision before accepting. Once you record a decision, the accepted terms are locked.'],
-    ['Which link should I share?', 'Send the review link to the client. Save the manage link privately so you can open the request on another device.']
+    ['Which link should I share?', 'Send the review link to the client. Save the manage link privately so you can open the request on another device.'],
+    ['Can my client keep the original scope?', 'Yes. They can keep the original scope, approve the addition, or choose a swap if you offered one.'],
+    ['How long can clients reply?', 'Clients have 30 days from creation to reply. If a request expires, create a new one and share its review link.'],
+    ['Where are my requests on another device?', 'My requests is saved in the browser you used. Open each saved manage link on the new device to add it to that browser.'],
+    ['What does estimated margin mean?', 'It’s the approved extra fee less the private delivery cost you entered. It estimates margin on approved work. The payment state shows whether a test transfer was verified.'],
+    ['How do I save a decision receipt?', 'Open the decided request and select Print receipt. Choose Save as PDF in your browser if you want a file.'],
+    ['What happens if I withdraw or delete a request?', 'Withdrawing stops new decisions on an open request. Deleting removes the hosted record and disables both links. Save any receipt you need first.'],
+    ['What if Slush closes before I finish?', 'Reopen the review link. If you already paid, get the transaction ID from Slush Activity and verify it before trying to pay again.']
   ];
   const content = isFaq ? `<div class="faq-list">${questions.map(([question, answer]) => `<details><summary>${question}</summary><p>${answer}</p></details>`).join('')}</div>` : `
-    <nav class="guide-nav" aria-label="On this page"><a href="#send">Send a request</a><a href="#review">Review a change</a><a href="#test-payment">Make a test payment</a></nav>
+    <nav class="guide-nav" aria-label="On this page"><a href="#send">Send a request</a><a href="#manage">Manage requests</a><a href="#review">Review a change</a><a href="#receipts">Receipts and ledger</a><a href="#test-payment">Make a test payment</a></nav>
     <section id="send"><h2>Send a request</h2><ol><li>Describe the original agreement and what changed.</li><li>Enter the extra fee and time. Compare the client preview.</li><li>Create the review link and send it to your client. Keep the manage link private.</li></ol><a class="button primary" href="/new">Create a request</a></section>
-    <section id="review"><h2>Review a change</h2><ol><li>Open the link from your studio. Check the revision, fee, and timeline.</li><li>Choose added work, a scope swap if offered, or the original scope.</li><li>Enter your name and confirm. You can print the decision receipt.</li></ol></section>
+    <section id="manage"><h2>Manage requests</h2><h3>Revise an open request</h3><p>Open its manage link and select <strong>Revise terms</strong>. Save the new scope, fee, or timing. The same review link shows the new revision. If your client already has the old version open, they’ll be asked to review the update.</p>
+    <h3>Open a request on another device</h3><p>Choose <strong>Copy manage link</strong> in the studio view and save it privately. Open it directly on the other device or paste it into <strong>Open a saved manage link</strong> in My requests. Anyone with the manage link can manage that request.</p>
+    <h3>Close or remove a request</h3><p>Use <strong>More actions</strong> to withdraw an open request or delete a record. A withdrawn request stops accepting responses. A deleted request can no longer be opened by either link.</p></section>
+    <section id="review"><h2>Review a change</h2><ol><li>Open the link from your studio. Check the revision, fee, and timeline.</li><li>Choose added work, a scope swap if offered, or the original scope.</li><li>Enter your name and confirm. You can print the decision receipt.</li></ol><p>Your decision locks that revision. If the terms need to change after approval, ask the studio for a new request.</p></section>
+    <section id="receipts"><h2>Receipts and ledger</h2><p>After the client decides, both sides can open their original links to see the choice, revision, and decision time. Use <strong>Print receipt</strong> to print or save a PDF through your browser.</p><p><strong>My requests</strong> shows the requests saved in this browser. Pending fees are grouped by currency. Estimated margin uses the approved fee and the private delivery cost when one was entered.</p></section>
     <section id="test-payment"><h2>Make a test payment</h2><p>Use this when the studio offers Sui Testnet checkout. You’ll need a wallet and test funds.</p><ol>
     <li>Open <a href="https://slush.app/" target="_blank" rel="noreferrer">Slush</a>, create or open a wallet, and select Sui Testnet. Copy your public wallet address. It starts with <code>0x</code>. Keep your recovery phrase private.</li>
     <li>Use the <a href="https://faucet.sui.io/" target="_blank" rel="noreferrer">Sui faucet</a> for test SUI and the <a href="https://faucet.circle.com/" target="_blank" rel="noreferrer">Circle faucet</a> for test USDC. Select Sui Testnet and use the same public address for both.</li>
     <li>Return to the review link, paste your wallet address, and approve the revision. Open test checkout and confirm the amount and destination in Slush.</li>
-    <li>Copy the transaction ID from wallet activity. Paste it on the receipt and choose <strong>Verify transfer</strong>.</li></ol></section>`;
-  render(`<div class="shell receipt-shell"><article class="card receipt-card guide enter">${heading(isFaq ? 'Frequently asked questions' : 'How to use AgreeMargin', isFaq ? 'Help with requests, receipts, and test payments.' : 'From a scope change to a client decision.')}${content}<a class="text-action" href="${isFaq ? '/docs' : '/faq'}">${isFaq ? 'Read the walkthrough' : 'Read the FAQ'} →</a></article></div>`);
+    <li>Copy the transaction ID from wallet activity. Paste it on the receipt and choose <strong>Verify transfer</strong>.</li></ol>
+    <h3>If verification is pending</h3><p>Keep the transaction ID and retry after it appears in a Testnet checkpoint. AgreeMargin checks the approved amount, asset, sending wallet, recipient, and Payment Kit receipt. A transfer made with the wallet’s regular Send button cannot verify this checkout.</p></section>`;
+  render(`<div class="shell receipt-shell"><article class="card receipt-card guide enter">${heading(isFaq ? 'Frequently asked questions' : 'How to use AgreeMargin', isFaq ? 'Help with requests, receipts, and test payments.' : 'Create, share, and track changes to client work.')}${content}<a class="text-action" href="${isFaq ? '/docs' : '/faq'}">${isFaq ? 'Read the walkthrough' : 'Read the FAQ'}</a></article></div>`);
   if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 }
 

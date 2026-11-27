@@ -306,6 +306,8 @@ button.text-action { width: fit-content; padding: 0; border: 0; background: tran
 .footer-links a { padding-inline: 4px; border-radius: 5px; color: var(--muted); text-decoration: none; }
 .footer-links a:hover, .footer-links a[aria-current="page"] { color: var(--action); background: var(--tint); }
 .guide section { padding-top: 16px; border-top: 1px solid var(--line); scroll-margin-top: 88px; }
+.guide section h3 { margin-top: 14px; font-size: 1rem; }
+.guide section p + p { margin-top: 10px; }
 .guide h2 { font-size: 1.17rem; margin-bottom: 6px; }
 .guide-nav { display: flex; flex-wrap: wrap; gap: 0 18px; }
 .guide ol, .payment-steps { display: grid; gap: 10px; padding-left: 1.35rem; margin-block: 8px; }
