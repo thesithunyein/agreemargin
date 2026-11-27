@@ -166,7 +166,7 @@ function updateScope(container, data, choice) {
 }
 
 function heroGlobe() {
-  const colors = ['#145849', '#3A8A72', '#76AE99', '#2A61A0', '#769BCD', '#BC853B'];
+  const colors = ['#429B7D', '#81CAA9', '#AAE5C6', '#3C795F', '#669BA0', '#D5B378'];
   const count = 700;
   const dots = Array.from({ length: count }, (_, index) => {
     const y = 1 - 2 * (index + .5) / count;
@@ -175,13 +175,13 @@ function heroGlobe() {
     return { x: Math.cos(angle) * radius, y, z: Math.sin(angle) * radius, color: colors[index % colors.length] };
   }).filter(({ z }) => z > 0).sort((a, b) => a.z - b.z);
   return `<div class="hero-art" aria-hidden="true"><svg viewBox="0 0 440 360" fill="none">
-    <defs><radialGradient id="globe-light" cx="35%" cy="27%" r="70%"><stop stop-color="white"/><stop offset="1" stop-color="#f4f4f4"/></radialGradient></defs>
+    <defs><radialGradient id="globe-light" cx="35%" cy="27%" r="70%"><stop stop-color="#19352B"/><stop offset="1" stop-color="#080D0B"/></radialGradient></defs>
     <circle cx="220" cy="180" r="126" fill="url(#globe-light)"/>
-    <ellipse cx="220" cy="180" rx="180" ry="63" transform="rotate(-26 220 180)" stroke="#a3a3a3" stroke-dasharray="3 6"/>
+    <ellipse cx="220" cy="180" rx="180" ry="63" transform="rotate(-26 220 180)" stroke="#557064" stroke-dasharray="3 6"/>
     ${dots.map(({ x, y, z, color }) => `<circle cx="${(220 + x * 124).toFixed(2)}" cy="${(180 + y * 124).toFixed(2)}" r="${(1.2 + z * 2.05).toFixed(2)}" fill="${color}" opacity="${(.44 + z * .47).toFixed(2)}"/>`).join('')}
-    <path d="M382 100C408 150 343 225 250 270S74 317 57 274" stroke="#171717" stroke-width="1.5" stroke-linecap="round"/>
-    <circle cx="382" cy="100" r="10" fill="#e6e6e6"/><circle cx="382" cy="100" r="4" fill="#171717"/>
-    <circle cx="57" cy="274" r="4" fill="#171717"/>
+    <path d="M382 100C408 150 343 225 250 270S74 317 57 274" stroke="#A4D9BE" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="382" cy="100" r="10" fill="#19352B"/><circle cx="382" cy="100" r="4" fill="#A4D9BE"/>
+    <circle cx="57" cy="274" r="4" fill="#A4D9BE"/>
   </svg></div>`;
 }
 
@@ -196,7 +196,7 @@ function home() {
     ['check', 'Keep the receipt', 'See what they agreed to and when.']
   ];
   render(`<div class="landing"><section class="shell hero">
-    <div class="hero-copy"><h1>Get extra work approved.</h1>
+    <div class="hero-copy"><h1>Get extra work <em>approved.</em></h1>
     <p>Agree on the price and timeline before you start.</p>
     <div class="actions"><a class="button primary" href="/new">New request ${icon('plus')}</a><a class="text-action" href="/workspace">My requests</a></div></div>
     ${heroGlobe()}</section>

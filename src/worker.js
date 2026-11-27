@@ -265,7 +265,7 @@ export default {
       if (!['GET', 'HEAD'].includes(request.method)) throw new HttpError(405, 'This action is unavailable.');
       if (url.pathname === '/FAQ') return Response.redirect(new URL('/faq', url), 308);
       const name = url.pathname.slice(1);
-      if (name === 'dm-sans-latin.woff2') {
+      if (name.endsWith('.woff2') && Object.hasOwn(assets, name)) {
         const body = request.method === 'HEAD' ? null : Uint8Array.from(atob(assets[name]), (char) => char.charCodeAt(0));
         return new Response(body, { headers: { ...headers, 'Content-Type': 'font/woff2', 'Cache-Control': 'public, max-age=86400' } });
       }
